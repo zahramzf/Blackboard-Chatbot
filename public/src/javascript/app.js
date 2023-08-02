@@ -37,8 +37,42 @@ $(".feedback-close").on("click", function() {
 
  //feedback submission
  $(".feedback-submit").on("click", function() {
-  const feedbackText = $(".feedback-textarea").val();
+  // const feedbackText = $(".feedback-textarea").val();
+  // console.log(feedbackText);
+  // $.ajax({
+  //   url: "your-api-endpoint", // Replace with your API endpoint
+  //   type: "POST",
+  //   data: feedbackText,
+  //   success: function(response) {
+  //     // Handle successful response from the server
+  //     console.log("Response from server:", response);
+  //   },
+  //   error: function(xhr, status, error) {
+  //     // Handle error response from the server
+  //     console.error("Error:", error);
+  //   }
+  // });
 });
+
+//feedback form
+// const submitFeedBackForm = ()=>{
+//   const feedbackText = $(".feedback-textarea").val();
+//   $.ajax({
+//     url: "your-api-endpoint", // Replace with your API endpoint
+//     type: "POST",
+//     data: feedbackText,
+//     success: function(response) {
+//       // Handle successful response from the server
+//       console.log("Response from server:", response);
+//     },
+//     error: function(xhr, status, error) {
+//       // Handle error response from the server
+//       console.error("Error:", error);
+//     }
+//   });
+
+// }
+
 
 //form
 const submitForm = () => {

@@ -93,6 +93,7 @@ const sendAllQuestions = (req, res) => {
 };
 
 const sendWelcomeMessage = (req, res) => {
+  console.log(__dirname);
   res.json({
     responseText: welcomeChat,
   });
@@ -265,7 +266,17 @@ const notFound = async (req, res) => {
     console.log(err);
   }
 };
-
+const addToJsonFile = async (req,res)=>{
+  fs.readFile(path.join(__dirname, 'intents',`${feedback}.json`), (err, jsonString) => { 
+    if (err) throw err;
+    const file = JSON.parse(jsonString);
+    // You should change data to your local data (textarea-feedback) 
+    file.feedback.push(data);
+    fs.writeFile(path.join(__dirname, 'intents', `${feedback}.json`), JSON.stringify(file), (err) => {
+        if (err) throw err;
+    })
+})
+}
 
 app.use(cors());
 app.use(compression());
@@ -274,6 +285,7 @@ app.use("/api/", morgan("tiny"));
 app.get("/api/question", sendAnswer);
 app.get("/api/welcome", sendWelcomeMessage);
 app.get("/api/allQuestions", sendAllQuestions);
+app.get("/api/feedBack", addToJsonFile);
 app.use(serveStatic(path.join(__dirname, "public")));
 app.get("*", notFound);
 
