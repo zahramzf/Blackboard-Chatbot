@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>JavaScript ChatBot</title>
+  <meta name="title" content="JavaScript ChatBot">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Simple and Powerful Chatbot In JavaScript.">
+
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="./src/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="./src/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./src/images/favicon-16x16.png">
+
+  <link rel="manifest" href="./site.webmanifest">
+
+  <link rel="stylesheet" href="./src/styles/normalize.min.css" />
+  <!-- <link rel="stylesheet" href="./src/styles/compiled.min.css" /> -->
+  <link rel="stylesheet" href="./src/styles/style.css" />
+</head>
+
+<body>
+  <header>
+    <div class="header-content">
+      <h2>Blackboard ChatBot</h2>
+      <div id="toogle-chat">
+        <img src="./src/images/headericon.png" class="suggest-chat">
+      </div>
+      <div class="profile"></div>
+      <p class="typing">bot is typing. . .</p>
+    </div>
+  </header>
+
+  <main>
+  </main>
+
+  <!--<div class="main-background">
+    <div>
+      <h3></h3>
+      <p></p>
+    </div>
+  </div>-->
+
+  <section class="all-questions">
+    <h2>Suggested Chats</h2>
+    <div class="questions container"></div>
+  </section>
+
+
+  <footer>
+    <form id="chat-form">
+      <div class="input-wrapper">
+        <input type="text" class="chat-input" required>
+        <button type="submit" class="chat-submit">
+          <img src="./src/images/iconsend.png" alt="Icon description" class="chat-submit-icon" width="22" height="22">
+        </button>
+      </div>
+    </form>
+  </footer>
+
+  <!-- Add this HTML code after the "Footer" section -->
+  <div class="feedback-window" style="display: none;">
+    <button class="feedback-close">&#10005;</button>
+    <div class="feedback-content">
+      <h3>Provide Your Feedback</h3>
+      <textarea class="feedback-textarea" placeholder="Enter your feedback here..."></textarea>
+      <div class="feedback-buttons">
+        <button class="feedback-submit">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  
+  <script src="./src/javascript/jquery.min.js"></script>
+  <script src="./src/javascript/typed.min.js"></script>
+  <script src="./src/javascript/app.js"></script>
+</body>
+
+</html>
