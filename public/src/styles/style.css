@@ -42,24 +42,27 @@ body {
     position: relative;
 }
 header {
-    background-color: var(--header);
-    position: fixed;
-    top: 0;
-    width: 100vw;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    padding:0 1rem ;
-    box-shadow: #868686 2px 0px 4px;
-    justify-content: space-between ;
-    transition: all 1s;
-    font-family: var(--font_family_3);
-    position: relative;
+  background-color: var(--header);
+  position: sticky;
+  top: 0;
+  width: 100vw;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  box-shadow: #868686 2px 0px 4px;
+  justify-content: space-between;
+  transition: all 1s;
+  font-family: var(--font_family_3);
+  /* position: relative; */
+  z-index: 3;
 }
 
 .header-content {
   display: flex; 
   align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
 header h2 {
@@ -74,15 +77,18 @@ header h2 {
 }
 
 .profile {
-  width: 37px; 
-  height: 37px;
-  border-radius: 50%; 
-  background-color: #b4009e; 
-  position: absolute; 
-  top: 50%; 
-  right: 20px; 
-  transform: translateY(-50%); /* Center the circle vertically */
-}
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  /* background-color: #b4009e;  */
+  background-color: #c6ddff;
+  color: #07319b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 15px;
+  font-weight: 500;
+  }
 
 main {
     height: 86vh;
@@ -489,11 +495,11 @@ main {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all .3s ease;
   }
   
   .feedback-submit:hover{
-    color: #ddd0d0;
+    box-shadow: 3px 2px 8px 0px #46d994;
   }
   .feedback-close:hover {
     color: #b30003;
