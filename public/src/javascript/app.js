@@ -1,12 +1,13 @@
+
 // time
 function TimeCurrently() {
   const current = new Date();
-  const hours = String(current.getHours()).padStart(2, '0');
-  const minutes = String(current.getMinutes()).padStart(2, '0');
+  const hours = String(current.getHours()).padStart(2, "0");
+  const minutes = String(current.getMinutes()).padStart(2, "0");
   return `${hours}:${minutes}`;
 }
 
-//profile photo
+// profile photo
 function showProfilePhoto(photoURL) {
   const imgElement = document.createElement("img");
   imgElement.src = photoURL;
@@ -15,66 +16,53 @@ function showProfilePhoto(photoURL) {
   return imgElement;
 }
 
-//feedback 
+// feedback
 function setupFeedbackEventListeners() {
-  $(".feedback-like").on("click", function() {
+  $(".feedback-like").on("click", function () {
     $(this).toggleClass("liked");
     $(".feedback-dislike").removeClass("disliked");
     $(".feedback-window").fadeIn();
   });
 
-  $(".feedback-dislike").on("click", function() {
+  $(".feedback-dislike").on("click", function () {
     $(this).toggleClass("disliked");
     $(".feedback-like").removeClass("liked");
     $(".feedback-window").fadeIn();
   });
 }
 
-//feedback close
-$(".feedback-close").on("click", function() {
+// feedback close
+$(".feedback-close").on("click", () => {
   $(".feedback-window").fadeOut();
 });
 
- //feedback submission
- $(".feedback-submit").on("click", function() {
-  // const feedbackText = $(".feedback-textarea").val();
-  // console.log(feedbackText);
-  // $.ajax({
-  //   url: "your-api-endpoint", // Replace with your API endpoint
-  //   type: "POST",
-  //   data: feedbackText,
-  //   success: function(response) {
-  //     // Handle successful response from the server
-  //     console.log("Response from server:", response);
-  //   },
-  //   error: function(xhr, status, error) {
-  //     // Handle error response from the server
-  //     console.error("Error:", error);
-  //   }
-  // });
+// feedback submission
+$(".feedback-submit").on("click", () => {
+  const feedbackText = $(".feedback-textarea").val();
+  const postData = {
+    text: feedbackText,
+  };
+  try {
+    $.ajax({
+      url: "./api/feedBack",
+      type: "POST",
+      data: postData,
+      dataType: "json",
+      success(response) {
+        console.log("Response from server:", response);
+        $(".feedback-window").fadeOut();
+      },
+      error(xhr, status, error) {
+        console.error("Error:", error);
+      },
+    });
+  } catch (error) {
+    console.log(error);
+  }
+
 });
 
-//feedback form
-// const submitFeedBackForm = ()=>{
-//   const feedbackText = $(".feedback-textarea").val();
-//   $.ajax({
-//     url: "your-api-endpoint", // Replace with your API endpoint
-//     type: "POST",
-//     data: feedbackText,
-//     success: function(response) {
-//       // Handle successful response from the server
-//       console.log("Response from server:", response);
-//     },
-//     error: function(xhr, status, error) {
-//       // Handle error response from the server
-//       console.error("Error:", error);
-//     }
-//   });
-
-// }
-
-
-//form
+// form
 const submitForm = () => {
   const chatInput = $(".chat-input").val();
   const Timecurrent = TimeCurrently();
@@ -147,7 +135,7 @@ window.onload = () => {
           const response = data.responseText.data;
           const Timecurrent = TimeCurrently();
           console.log(data.responseText);
-          
+
           $(".chat-msg-box.bot:last-child").html(`
           <div>
 
@@ -173,7 +161,7 @@ window.onload = () => {
           </div>
 
          </div>
-          `) 
+          `);
           setupFeedbackEventListeners();
         },
 

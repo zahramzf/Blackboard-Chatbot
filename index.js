@@ -1,4 +1,4 @@
-/* eslint-disable max-len */
+
 const fs = require("fs");
 const _ = require("lodash");
 const wiki = require("wikipedia");
@@ -17,6 +17,7 @@ const dotenv = require("dotenv");
 const express = require("express");
 const compression = require("compression");
 const serveStatic = require("serve-static");
+const bodyParser = require("body-parser");
 
 const pkg = require("./package.json");
 const mainChat = require("./intents/Main_Chat.json");
@@ -266,26 +267,62 @@ const notFound = async (req, res) => {
     console.log(err);
   }
 };
-const addToJsonFile = async (req,res)=>{
-  fs.readFile(path.join(__dirname, 'intents',`${feedback}.json`), (err, jsonString) => { 
+const addToJsonFile = async (req, res) => {
+  const { text } = req.body;
+  const newFeedBack = {
+    text,
+  };
+  fs.readFile(path.join(__dirname, "intents", "feedback.json"), (err, jsonString) => {
     if (err) throw err;
     const file = JSON.parse(jsonString);
-    // You should change data to your local data (textarea-feedback) 
-    file.feedback.push(data);
-    fs.writeFile(path.join(__dirname, 'intents', `${feedback}.json`), JSON.stringify(file), (err) => {
-        if (err) throw err;
-    })
-})
-}
+    file.feedback.push(newFeedBack);
+    fs.writeFile(path.join(__dirname, "intents", "feedback.json"), JSON.stringify(file), (err) => {
+      if (err) throw err;
+    });
+    res.json({
+      responseText: "Feedback submitted successfully",
+    });
+  });
+
+  // fs.readFile('data.json', 'utf8', (err, data) => {
+  //   if (err) {
+  //     console.error('Error reading data from the JSON file:', err);
+  //     return;
+  //   }
+
+  //   try {
+  //     // Step 2: Parse the JSON data into a JavaScript object
+  //     const jsonData = JSON.parse(data);
+
+  //     // Step 3: Modify the JavaScript object by adding the new data
+  //     jsonData.users.push(newData);
+
+  //     // Step 4: Write the updated JavaScript object back to the JSON file
+  //     fs.writeFile('data.json', JSON.stringify(jsonData, null, 2), 'utf8', (err) => {
+  //       if (err) {
+  //         console.error('Error writing data to the JSON file:', err);
+  //         return;
+  //       }
+
+  //       console.log('Data added successfully!');
+  //     });
+  //   } catch (err) {
+  //     console.error('Error parsing JSON data:', err);
+  //   }
+  // });
+};
 
 app.use(cors());
 app.use(compression());
+app.use(express.json());
+app.use(bodyParser.json());
+app.use(express.urlencoded({ limit: "100mb", extended: true }));
 app.set("json spaces", 4);
 app.use("/api/", morgan("tiny"));
 app.get("/api/question", sendAnswer);
 app.get("/api/welcome", sendWelcomeMessage);
 app.get("/api/allQuestions", sendAllQuestions);
-app.get("/api/feedBack", addToJsonFile);
+app.post("/api/feedBack", addToJsonFile);
 app.use(serveStatic(path.join(__dirname, "public")));
 app.get("*", notFound);
 
