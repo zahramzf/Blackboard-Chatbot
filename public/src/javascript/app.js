@@ -21,24 +21,24 @@ function setupFeedbackEventListeners() {
   $(".feedback-like").on("click", function () {
     $(this).toggleClass("liked");
     $(".feedback-dislike").removeClass("disliked");
-    $(".feedback-window").fadeIn();
+    $(".winfeedback").fadeIn();
   });
 
   $(".feedback-dislike").on("click", function () {
     $(this).toggleClass("disliked");
     $(".feedback-like").removeClass("liked");
-    $(".feedback-window").fadeIn();
+    $(".winfeedback").fadeIn();
   });
 }
 
 // feedback close
 $(".feedback-close").on("click", () => {
-  $(".feedback-window").fadeOut();
+  $(".winfeedback").fadeOut();
 });
 
 // feedback submission
-$(".feedback-submit").on("click", () => {
-  const feedbackText = $(".feedback-textarea").val();
+$(".submission-feedback").on("click", () => {
+  const feedbackText = $(".textsection-feedback").val();
   const postData = {
     text: feedbackText,
   };
@@ -50,7 +50,7 @@ $(".feedback-submit").on("click", () => {
       dataType: "json",
       success(response) {
         console.log("Response from server:", response);
-        $(".feedback-window").fadeOut();
+        $(".winfeedback").fadeOut();
       },
       error(xhr, status, error) {
         console.error("Error:", error);

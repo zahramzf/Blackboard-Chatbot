@@ -443,7 +443,7 @@ main {
 
 
 /* CSS for the feedback window */
-.feedback-window {
+.winfeedback {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -472,7 +472,7 @@ main {
     margin-left: -8px ;
   }
   
-  .feedback-textarea {
+  .textsection-feedback {
     width: 100%px;
     height: 128px;
     resize: none;
@@ -488,7 +488,7 @@ main {
     justify-content: flex-end;
   }
   
-  .feedback-submit{
+  .submission-feedback{
     padding: 8px 15px;
     background-color: #1cbd72;
     color: #fff;
@@ -498,7 +498,7 @@ main {
     transition: all .3s ease;
   }
   
-  .feedback-submit:hover{
+  .submission-feedback:hover{
     box-shadow: 3px 2px 8px 0px #46d994;
   }
   .feedback-close:hover {
