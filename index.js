@@ -27,6 +27,10 @@ const welcomeChat = require("./intents/Default_Welcome.json");
 const fallbackChat = require("./intents/Default_Fallback.json");
 const unitConverterChat = require("./intents/unit_converter.json");
 
+const process = require('process');
+const {authenticate} = require('@google-cloud/local-auth');
+const {google} = require('googleapis');
+
 dotenv.config();
 
 const standardRating = 0.6;
@@ -53,6 +57,10 @@ allQustions = _.concat(
 
 allQustions = _.uniq(allQustions);
 allQustions = _.compact(allQustions);
+
+// Google Calendar
+
+// Google Calendar
 
 const changeUnit = (amount, unitFrom, unitTo) => {
   try {
