@@ -49,9 +49,7 @@ const SCOPES = ['https://www.googleapis.com/auth/calendar.readonly'];
 const TOKEN_PATH = path.join(process.cwd(), 'token.json');
 const CREDENTIALS_PATH = path.join(process.cwd(), 'credentials.json');
 
-
-
-async function loadSavedCredentialsIfExist() {
+async function loadingcredential() {
   try {
     const content = await fss.readFile(TOKEN_PATH);
     const credentials = JSON.parse(content);
@@ -61,21 +59,21 @@ async function loadSavedCredentialsIfExist() {
   }
 }
 
-async function saveCredentials(client) {
+async function credentialsaving(client) {
   const content = await fss.readFile(CREDENTIALS_PATH);
-  const keys = JSON.parse(content);
-  const key = keys.installed || keys.web;
-  const payload = JSON.stringify({
+  const key1 = JSON.parse(content);
+  const key2 = key1.installed || key1.web;
+  const loadpaying = JSON.stringify({
     type: 'authorized_user',
-    client_id: key.client_id,
-    client_secret: key.client_secret,
+    client_id: key2.client_id,
+    client_secret: key2.client_secret,
     refresh_token: client.credentials.refresh_token,
   });
-  await fss.writeFile(TOKEN_PATH, payload);
+  await fss.writeFile(TOKEN_PATH, loadpaying);
 }
 
-async function authorize() {
-  let client = await loadSavedCredentialsIfExist();
+async function authorization() {
+  let client = await loadingcredential();
   if (client) {
     return client;
   }
@@ -84,12 +82,12 @@ async function authorize() {
     keyfilePath: CREDENTIALS_PATH,
   });
   if (client.credentials) {
-    await saveCredentials(client);
+    await credentialsaving(client);
   }
   return client;
 }
 
-async function listEvents(auth) {
+async function Events(auth,eventname) {
   const calendar = google.calendar({version: 'v3', auth});
   const res = await calendar.events.list({
     calendarId: 'primary',
@@ -99,18 +97,21 @@ async function listEvents(auth) {
     orderBy: 'startTime',
   });
   const events = res.data.items;
-  if (!events || events.length === 0) {
-    console.log('No upcoming events found.');
-    return;
-  }
-  console.log('Upcoming 10 events:');
-  events.map((event, i) => {
-    const start = event.start.dateTime || event.start.date;
-    console.log(`${start} - ${event.summary}`);
-  });
+  //if (!events || events.length === 0) {
+   // console.log('No upcoming events found.');
+   // return;
+ // }
+  const findValue = events.find(event=>event.summary == eventname);
+  return findValue;
+  // events.map((event, i) => {
+  //   console.log(event);
+  //   const start = event.start.dateTime || event.start.date;
+  //   console.log(`${start} - ${event.summary}`);
+  // });
 }
-authorize().then(listEvents).catch(console.error);
+authorization().then(Events).catch(console.error);
 // Google Calendar
+
 let allQustions = [];
 
 allQustions = _.concat(allQustions, wikipediaChat);

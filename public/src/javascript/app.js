@@ -16,6 +16,16 @@ function showProfilePhoto(photoURL) {
   return imgElement;
 }
 
+// google function
+function sendingEvent(eventdetail) {
+  const eventText = `
+    The upcoming event is: ${eventdetail.summary}
+    Date: ${eventdetail.start.dateTime}
+    Location: ${eventdetail.location}
+  `;
+  response(eventText);
+}
+
 // feedback
 function setupFeedbackEventListeners() {
   $(".feedback-like").on("click", function () {
