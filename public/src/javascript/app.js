@@ -107,13 +107,28 @@ const submitForm = () => {
       }
     },
     success: (data) => {
-      const response = (data.responseText).replace(/\n/gm, "</br>");
-      $(".chat-msg-box.bot:last-child").html(`
-      <div class="content-container chat-msg-box-inner">
-        <p>${response}</p>
-        <span class="time2">${Timecurrent}</span>
-      </div>
-      `);
+      console.log("data front: ", data);
+      if (typeof data.responseText === 'object') {
+        const response = data.responseText;
+        $(".chat-msg-box.bot:last-child").html(`
+        <div class="content-container chat-msg-box-inner"></br>
+          <p>There are some information about your ${response.summary} :</p>
+          <small>Exam date : ${new Date(response.time).toLocaleString()}</small></br>
+          <small>Location : ${response.location}</small></br>
+          <small>for more details : ${response.link}</small></br>
+          <span class="time2">${Timecurrent}</span>
+        </div>
+        `);
+      } else {
+        const response = (data.responseText).replace(/\n/gm, "</br>");
+        $(".chat-msg-box.bot:last-child").html(`
+        <div class="content-container chat-msg-box-inner">
+          <p>${response}</p>
+          <span class="time2">${Timecurrent}</span>
+        </div>
+        `);
+      }
+      
     },
     error: () => {
       $(".chat-msg-box.bot:last-child").remove();

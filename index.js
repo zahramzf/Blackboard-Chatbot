@@ -26,6 +26,7 @@ const wikipediaChat = require("./intents/wikipedia.json");
 const welcomeChat = require("./intents/Default_Welcome.json");
 const fallbackChat = require("./intents/Default_Fallback.json");
 const unitConverterChat = require("./intents/unit_converter.json");
+const examChat = require("./intents/answers.json");
 
 dotenv.config();
 const fss = require('fs').promises;
@@ -87,27 +88,22 @@ async function authorization() {
   return client;
 }
 
-async function Events(auth,eventname) {
+let newEvents = [];
+async function Events(auth) {
   const calendar = google.calendar({version: 'v3', auth});
   const res = await calendar.events.list({
     calendarId: 'primary',
     timeMin: new Date().toISOString(),
-    maxResults: 10,
+    // maxResults: 10,
     singleEvents: true,
     orderBy: 'startTime',
   });
   const events = res.data.items;
-  //if (!events || events.length === 0) {
-   // console.log('No upcoming events found.');
-   // return;
- // }
-  const findValue = events.find(event=>event.summary == eventname);
-  return findValue;
-  // events.map((event, i) => {
-  //   console.log(event);
-  //   const start = event.start.dateTime || event.start.date;
-  //   console.log(`${start} - ${event.summary}`);
-  // });
+  if (!events || events.length === 0) console.log('No upcoming events found.')
+  // const findValue = events.find(event => event.summary == eventname);
+  newEvents = events;
+  console.log("events:",events);
+  // return findValue;
 }
 authorization().then(Events).catch(console.error);
 // Google Calendar
@@ -188,6 +184,8 @@ const sendAnswer = async (req, res) => {
     const regExforUnitConverter = /(convert|change|in).{1,2}(\d{1,8})/gim;
     const regExforWikipedia = /(search for|tell me about|what is|who is)(?!.you) (.{1,30})/gim;
     const regExforSupport = /(invented|programmer|teacher|create|maker|who made|creator|developer|bug|email|report|problems)/gim;
+    const regExforExamTime =  /(When is my)(.*) exam/gim;
+    const regExforExamDeadline =  /^When is my (.*) deadline\b/gim;
 
     let similarQuestionObj;
 
@@ -209,17 +207,24 @@ const sendAnswer = async (req, res) => {
         humanInput,
         _.flattenDeep(_.map(supportChat, "questions")),
       ).bestMatch;
-    } else {
+    } else if (regExforExamTime.test(humanInput)) {
+      action = "exam_date";
+      similarQuestionObj = stringSimilarity.findBestMatch(
+        humanInput,
+        examChat,
+      ).bestMatch;
+    }
+    else {
       action = "main_chat";
       similarQuestionObj = stringSimilarity.findBestMatch(
         humanInput,
         _.flattenDeep(_.map(mainChat, "questions")),
       ).bestMatch;
     }
-
+    
     const similarQuestionRating = similarQuestionObj.rating;
     const similarQuestion = similarQuestionObj.target;
-
+    
     if (action == "unit_converter") {
       const valuesObj = extractValues(humanInput, similarQuestion, {
         delimiters: ["{", "}"],
@@ -268,7 +273,22 @@ const sendAnswer = async (req, res) => {
           }
         }
       }
-    } else if (
+    } else if (action == "exam_date") {
+      const valuesObj = extractValues(humanInput, similarQuestion, {
+        delimiters: ["{", "}"],
+      });
+      let { course_name } = valuesObj;
+      course_name = capitalCase(course_name) + " exam";
+      const findEvent = newEvents.find(event => event.summary == course_name);
+      let responseObj = {
+        time : findEvent.start.dateTime,
+        link : findEvent.htmlLink,
+        location: findEvent.location,
+        summary: findEvent.summary
+      }
+      responseText = responseObj
+    }
+    else if (
       /(?:my name is|I'm|I am) (?!fine|good)(.{1,30})/gim.test(humanInput)
     ) {
       const humanName = /(?:my name is|I'm|I am) (.{1,30})/gim.exec(humanInput);
@@ -304,7 +324,7 @@ const sendAnswer = async (req, res) => {
     if (responseText == null) {
       responseText = _.sample(fallbackChat);
       isFallback = true;
-    } else if (action != "wikipedia") {
+    } else if (action != "wikipedia" && action != "exam_date") {
       responseText = responseText
         .replace(/(\[BOT_NAME\])/g, botName)
         .replace(/(\[DEVELOPER_NAME\])/g, developerName)

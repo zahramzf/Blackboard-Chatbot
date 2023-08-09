@@ -1,9 +1,5 @@
 [
-   {
-    "questions": [
-        "When is my Artificial intelligence exam?",
-        "Is it online or on-campus?",
-        "When is computational intelligence coursework deadline?"
-    ]
-   } 
+    "when is my {course_name} exam",
+    "Is it online or on-campus?",
+    "When is {course_name} deadline?"
 ]
