@@ -102,8 +102,6 @@ async function Events(auth) {
   if (!events || events.length === 0) console.log('No upcoming events found.')
   // const findValue = events.find(event => event.summary == eventname);
   newEvents = events;
-  console.log("events:",events);
-  // return findValue;
 }
 authorization().then(Events).catch(console.error);
 // Google Calendar

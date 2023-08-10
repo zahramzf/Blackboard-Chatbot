@@ -112,10 +112,10 @@ const submitForm = () => {
         const response = data.responseText;
         $(".chat-msg-box.bot:last-child").html(`
         <div class="content-container chat-msg-box-inner"></br>
-          <p>There are some information about your ${response.summary} :</p>
-          <small>Exam date : ${new Date(response.time).toLocaleString()}</small></br>
-          <small>Location : ${response.location}</small></br>
-          <small>for more details : ${response.link}</small></br>
+          <p>Here this is information about your ${response.summary} that you requested:</p>
+          <p>Exam date : ${new Date(response.time).toLocaleString()}</p>
+          <p>Location : ${response.location}</p>
+          <small>If you want to see more details please see the google calendar link :<u style="color:blue;"> ${response.link}</u></small></br>
           <span class="time2">${Timecurrent}</span>
         </div>
         `);
