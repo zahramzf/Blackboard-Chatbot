@@ -1,3 +1,7 @@
+/* eslint-disable no-shadow */
+/* eslint-disable no-unused-vars */
+/* eslint-disable import/order */
+/* eslint-disable camelcase */
 
 const fs = require("fs");
 const _ = require("lodash");
@@ -19,6 +23,7 @@ const compression = require("compression");
 const serveStatic = require("serve-static");
 const bodyParser = require("body-parser");
 
+const moment = require("moment");
 const pkg = require("./package.json");
 const mainChat = require("./intents/Main_Chat.json");
 const supportChat = require("./intents/support.json");
@@ -29,10 +34,10 @@ const unitConverterChat = require("./intents/unit_converter.json");
 const examChat = require("./intents/answers.json");
 
 dotenv.config();
-const fss = require('fs').promises;
-const process = require('process');
-const {authenticate} = require('@google-cloud/local-auth');
-const {google} = require('googleapis');
+const fss = require("fs").promises;
+const process = require("process");
+const { authenticate } = require("@google-cloud/local-auth");
+const { google } = require("googleapis");
 
 const standardRating = 0.6;
 const botName = process.env.BOT_NAME || pkg.name;
@@ -43,12 +48,11 @@ const bugReportUrl = process.env.DEVELOPER_NAME || pkg.bugs.url;
 const app = express();
 const port = process.env.PORT || 4000;
 
-
 // Google Calendar
-const SCOPES = ['https://www.googleapis.com/auth/calendar.readonly'];
+const SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"];
 
-const TOKEN_PATH = path.join(process.cwd(), 'token.json');
-const CREDENTIALS_PATH = path.join(process.cwd(), 'credentials.json');
+const TOKEN_PATH = path.join(process.cwd(), "token.json");
+const CREDENTIALS_PATH = path.join(process.cwd(), "credentials.json");
 
 async function loadingcredential() {
   try {
@@ -65,7 +69,7 @@ async function credentialsaving(client) {
   const key1 = JSON.parse(content);
   const key2 = key1.installed || key1.web;
   const loadpaying = JSON.stringify({
-    type: 'authorized_user',
+    type: "authorized_user",
     client_id: key2.client_id,
     client_secret: key2.client_secret,
     refresh_token: client.credentials.refresh_token,
@@ -90,16 +94,16 @@ async function authorization() {
 
 let newEvents = [];
 async function Events(auth) {
-  const calendar = google.calendar({version: 'v3', auth});
+  const calendar = google.calendar({ version: "v3", auth });
   const res = await calendar.events.list({
-    calendarId: 'primary',
+    calendarId: "primary",
     timeMin: new Date().toISOString(),
     // maxResults: 10,
     singleEvents: true,
-    orderBy: 'startTime',
+    orderBy: "startTime",
   });
   const events = res.data.items;
-  if (!events || events.length === 0) console.log('No upcoming events found.')
+  if (!events || events.length === 0) console.log("No upcoming events found.");
   // const findValue = events.find(event => event.summary == eventname);
   newEvents = events;
 }
@@ -121,7 +125,6 @@ allQustions = _.concat(
 
 allQustions = _.uniq(allQustions);
 allQustions = _.compact(allQustions);
-
 
 const changeUnit = (amount, unitFrom, unitTo) => {
   try {
@@ -182,8 +185,8 @@ const sendAnswer = async (req, res) => {
     const regExforUnitConverter = /(convert|change|in).{1,2}(\d{1,8})/gim;
     const regExforWikipedia = /(search for|tell me about|what is|who is)(?!.you) (.{1,30})/gim;
     const regExforSupport = /(invented|programmer|teacher|create|maker|who made|creator|developer|bug|email|report|problems)/gim;
-    const regExforExamTime =  /(When is my)(.*) exam/gim;
-    const regExforExamDeadline =  /^When is my (.*) deadline\b/gim;
+    const regExforExamTime = /(When is my)(.*) exam/gim;
+    const regExforExamDeadline = /^When is my (.*) deadline\b/gim;
 
     let similarQuestionObj;
 
@@ -211,18 +214,17 @@ const sendAnswer = async (req, res) => {
         humanInput,
         examChat,
       ).bestMatch;
-    }
-    else {
+    } else {
       action = "main_chat";
       similarQuestionObj = stringSimilarity.findBestMatch(
         humanInput,
         _.flattenDeep(_.map(mainChat, "questions")),
       ).bestMatch;
     }
-    
+
     const similarQuestionRating = similarQuestionObj.rating;
     const similarQuestion = similarQuestionObj.target;
-    
+
     if (action == "unit_converter") {
       const valuesObj = extractValues(humanInput, similarQuestion, {
         delimiters: ["{", "}"],
@@ -276,17 +278,20 @@ const sendAnswer = async (req, res) => {
         delimiters: ["{", "}"],
       });
       let { course_name } = valuesObj;
-      course_name = capitalCase(course_name) + " exam";
-      const findEvent = newEvents.find(event => event.summary == course_name);
-      let responseObj = {
-        time : findEvent.start.dateTime,
-        link : findEvent.htmlLink,
-        location: findEvent.location,
-        summary: findEvent.summary
+      course_name = `${capitalCase(course_name)} exam`;
+      const findEvent = newEvents.find((event) => event.summary == course_name);
+      if (findEvent) {
+        const responseObj = {
+          time: moment(findEvent.start.dateTime).format("dddd, MMMM Do YYYY, h:mm:ss a"),
+          link: findEvent.htmlLink,
+          location: findEvent.location,
+          summary: findEvent.summary,
+        };
+        responseText = responseObj;
+      } else {
+        responseText = "hmmm, I can't find any event in your calendar!";
       }
-      responseText = responseObj
-    }
-    else if (
+    } else if (
       /(?:my name is|I'm|I am) (?!fine|good)(.{1,30})/gim.test(humanInput)
     ) {
       const humanName = /(?:my name is|I'm|I am) (.{1,30})/gim.exec(humanInput);
@@ -401,7 +406,6 @@ const addToJsonFile = async (req, res) => {
   //     });
   //   } catch (err) {
   //     console.error('Error parsing JSON data:', err);
-
 
   //   }
   //   }

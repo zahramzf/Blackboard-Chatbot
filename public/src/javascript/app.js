@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
 
 // time
 function TimeCurrently() {
@@ -69,7 +71,6 @@ $(".submission-feedback").on("click", () => {
   } catch (error) {
     console.log(error);
   }
-
 });
 
 // form
@@ -108,11 +109,11 @@ const submitForm = () => {
     },
     success: (data) => {
       console.log("data front: ", data);
-      if (typeof data.responseText === 'object') {
+      if (typeof data.responseText === "object") {
         const response = data.responseText;
         $(".chat-msg-box.bot:last-child").html(`
         <div class="content-container chat-msg-box-inner"></br>
-          <p>Here this is information about your ${response.summary} that you requested:</p>
+          <p>Oww, I found it! Your exam gonna be on ${response.summary}</p>
           <p>Exam date : ${new Date(response.time).toLocaleString()}</p>
           <p>Location : ${response.location}</p>
           <small>If you want to see more details please see the google calendar link :<u style="color:blue;"> ${response.link}</u></small></br>
@@ -128,7 +129,6 @@ const submitForm = () => {
         </div>
         `);
       }
-      
     },
     error: () => {
       $(".chat-msg-box.bot:last-child").remove();
