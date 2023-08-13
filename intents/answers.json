@@ -1,6 +1,9 @@
 [
     "{when} is {course_name} exam",
+    "{when} is my {course_name} exam",
+    "{when} is our {course_name} exam",
     "where is {course_name} exam",
-    "Is it online or on-campus?",
-    "when is {course_name} deadline?"
+    "where is my {course_name} exam",
+    "where is our {course_name} exam",
+    "Is it online or on-campus?"
 ]

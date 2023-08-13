@@ -187,7 +187,7 @@ const sendAnswer = async (req, res) => {
     const regExforWikipedia = /(search for|tell me about|what is|who is)(?!.you) (.{1,30})/gim;
     const regExforSupport = /(invented|programmer|teacher|create|maker|who made|creator|developer|bug|email|report|problems)/gim;
 
-    const regExforExamTime = /(When is |Where is )?(.*)(my )?(.*)( exam| test| assessment)/gim;
+    const regExforExamTime = /(When is |Where is )(.*) exam/gim;
     // const regExforlectureTime = /(When is my)(.*) lecture/gim;
     // const regExforExamDeadline = /^When is my (.*) deadline\b/gim;
 
@@ -213,11 +213,11 @@ const sendAnswer = async (req, res) => {
       ).bestMatch;
     } else if (regExforExamTime.test(humanInput)) {
       action = "exam_date";
-      console.log(action);
       similarQuestionObj = stringSimilarity.findBestMatch(
         humanInput,
         examChat,
       ).bestMatch;
+      console.log(similarQuestionObj);
     } else {
       action = "main_chat";
       similarQuestionObj = stringSimilarity.findBestMatch(
@@ -281,11 +281,11 @@ const sendAnswer = async (req, res) => {
       const valuesObj = extractValues(humanInput, similarQuestion, {
         delimiters: ["{", "}"],
       });
-      console.log("valuesObj ",valuesObj);
+      console.log("valuesObj ", valuesObj);
       let { course_name } = valuesObj;
-      console.log("course_name",course_name);
+      console.log("course_name", course_name);
       course_name = `${course_name.toLowerCase()} exam`;
-      console.log("course_name2",course_name);
+      console.log("course_name2", course_name);
 
       const findEvent = newEvents.find((event) => event.summary.toLowerCase() == course_name);
 
@@ -358,7 +358,7 @@ const sendAnswer = async (req, res) => {
       similarQuestion,
     });
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
     if (error.message.includes("URI")) {
       res.status(500).send({ error: error.message, code: 500 });
     } else {
