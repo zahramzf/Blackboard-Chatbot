@@ -185,7 +185,9 @@ const sendAnswer = async (req, res) => {
     const regExforUnitConverter = /(convert|change|in).{1,2}(\d{1,8})/gim;
     const regExforWikipedia = /(search for|tell me about|what is|who is)(?!.you) (.{1,30})/gim;
     const regExforSupport = /(invented|programmer|teacher|create|maker|who made|creator|developer|bug|email|report|problems)/gim;
+
     const regExforExamTime = /(When is my)(.*) exam/gim;
+    const regExforlectureTime = /(When is my)(.*) lecture/gim;
     const regExforExamDeadline = /^When is my (.*) deadline\b/gim;
 
     let similarQuestionObj;
