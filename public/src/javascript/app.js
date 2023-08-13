@@ -111,15 +111,24 @@ const submitForm = () => {
       console.log("data front: ", data);
       if (typeof data.responseText === "object") {
         const response = data.responseText;
-        $(".chat-msg-box.bot:last-child").html(`
-        <div class="content-container chat-msg-box-inner"></br>
-          <p>Oww, I found it! Your exam gonna be on ${response.summary}</p>
-          <p>Exam date : ${new Date(response.time).toLocaleString()}</p>
-          <p>Location : ${response.location}</p>
-          <small>If you want to see more details please see the google calendar link :<u style="color:blue;"> ${response.link}</u></small></br>
-          <span class="time2">${Timecurrent}</span>
-        </div>
-        `);
+        if (response.keyText == 'when') {
+           $(".chat-msg-box.bot:last-child").html(`
+            <div class="content-container chat-msg-box-inner"></br>
+              <p>Oww, I found it!🤩🤩 Your ${response.summary} gonna be on ${response.time}</p>
+              <small>If you want to see more details please see the google calendar link :<u style="color:blue;"> ${response.link}</u></small></br>
+              <span class="time2">${Timecurrent}</span>
+            </div>
+          `);
+        }else{
+          $(".chat-msg-box.bot:last-child").html(`
+            <div class="content-container chat-msg-box-inner"></br>
+              <p>Oww, I found it!🤩🤩 Your ${response.summary} gonna be held in ${response.location}</p>
+              <small>If you want to see more details please see the google calendar link :<u style="color:blue;"> ${response.link}</u></small></br>
+              <span class="time2">${Timecurrent}</span>
+            </div>
+          `);
+        }
+       
       } else {
         const response = (data.responseText).replace(/\n/gm, "</br>");
         $(".chat-msg-box.bot:last-child").html(`

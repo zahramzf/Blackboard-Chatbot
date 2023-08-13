@@ -103,6 +103,7 @@ async function Events(auth) {
     orderBy: "startTime",
   });
   const events = res.data.items;
+  console.log(events);
   if (!events || events.length === 0) console.log("No upcoming events found.");
   // const findValue = events.find(event => event.summary == eventname);
   newEvents = events;
@@ -186,9 +187,9 @@ const sendAnswer = async (req, res) => {
     const regExforWikipedia = /(search for|tell me about|what is|who is)(?!.you) (.{1,30})/gim;
     const regExforSupport = /(invented|programmer|teacher|create|maker|who made|creator|developer|bug|email|report|problems)/gim;
 
-    const regExforExamTime = /(When is my)(.*) exam/gim;
-    const regExforlectureTime = /(When is my)(.*) lecture/gim;
-    const regExforExamDeadline = /^When is my (.*) deadline\b/gim;
+    const regExforExamTime = /(When is |Where is )?(.*)(my )?(.*)( exam| test| assessment)/gim;
+    // const regExforlectureTime = /(When is my)(.*) lecture/gim;
+    // const regExforExamDeadline = /^When is my (.*) deadline\b/gim;
 
     let similarQuestionObj;
 
@@ -212,6 +213,7 @@ const sendAnswer = async (req, res) => {
       ).bestMatch;
     } else if (regExforExamTime.test(humanInput)) {
       action = "exam_date";
+      console.log(action);
       similarQuestionObj = stringSimilarity.findBestMatch(
         humanInput,
         examChat,
@@ -279,15 +281,25 @@ const sendAnswer = async (req, res) => {
       const valuesObj = extractValues(humanInput, similarQuestion, {
         delimiters: ["{", "}"],
       });
+      console.log("valuesObj ",valuesObj);
       let { course_name } = valuesObj;
-      course_name = `${capitalCase(course_name)} exam`;
-      const findEvent = newEvents.find((event) => event.summary == course_name);
+      console.log("course_name",course_name);
+      course_name = `${course_name.toLowerCase()} exam`;
+      console.log("course_name2",course_name);
+
+      const findEvent = newEvents.find((event) => event.summary.toLowerCase() == course_name);
+
       if (findEvent) {
+        console.log("Bruh.. I found it...!!!!!");
+        const keys = Object.keys(valuesObj);
+        const firstKey = keys[0];
+        const firstValue = valuesObj[firstKey];
         const responseObj = {
           time: moment(findEvent.start.dateTime).format("dddd, MMMM Do YYYY, h:mm:ss a"),
           link: findEvent.htmlLink,
           location: findEvent.location,
           summary: findEvent.summary,
+          keyText: firstValue,
         };
         responseText = responseObj;
       } else {
