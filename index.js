@@ -183,6 +183,7 @@ const sendAnswer = async (req, res) => {
     const regExforWikipedia = /(search for|tell me about|what is|who is)(?!.you) (.{1,30})/gim;
     const regExforSupport = /(invented|programmer|teacher|create|maker|who made|creator|developer|bug|email|report|problems)/gim;
     const regExforExamTime =  /(When is my)(.*) exam/gim;
+    const regExforlectureTime =  /(When is my)(.*) lecture/gim;
     const regExforExamDeadline =  /^When is my (.*) deadline\b/gim;
 
     let similarQuestionObj;
