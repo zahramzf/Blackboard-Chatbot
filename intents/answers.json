@@ -2,11 +2,7 @@
     "{when} is {course_name} exam",
     "{when} is my {course_name} exam",
     "{when} is our {course_name} exam",
-    "where is {course_name} exam",
-    "where is my {course_name} exam",
-    "where is our {course_name} exam",
-    "where is {course_name} lectures",
-    "where is my {course_name} lectures",
-    "where is our {course_name} lectures",
-    "Is it online or on-campus?"
+    "{where} is {course_name} exam",
+    "{where} is my {course_name} exam",
+    "{where} is our {course_name} exam"
 ]

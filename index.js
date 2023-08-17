@@ -32,6 +32,8 @@ const welcomeChat = require("./intents/Default_Welcome.json");
 const fallbackChat = require("./intents/Default_Fallback.json");
 const unitConverterChat = require("./intents/unit_converter.json");
 const examChat = require("./intents/answers.json");
+const lectureChat = require("./intents/lectures.json");
+const lectureChatanswer = require("./intents/lecture_answers.json");
 
 dotenv.config();
 const fss = require("fs").promises;
@@ -188,7 +190,7 @@ const sendAnswer = async (req, res) => {
     const regExforSupport = /(invented|programmer|teacher|create|maker|who made|creator|developer|bug|email|report|problems)/gim;
 
     const regExforExamTime = /(When is |Where is )(.*) exam/gim;
-    // const regExforlectureTime = /(When is my)(.*) lecture/gim;
+    const regExforlectureTime = /(When is |Where is )(.*) lecture/gim;
     // const regExforExamDeadline = /^When is my (.*) deadline\b/gim;
 
     let similarQuestionObj;
@@ -216,6 +218,14 @@ const sendAnswer = async (req, res) => {
       similarQuestionObj = stringSimilarity.findBestMatch(
         humanInput,
         examChat,
+      ).bestMatch;
+      console.log(similarQuestionObj);
+    } else if (regExforlectureTime.test(humanInput)) {
+      action = "lecture";
+      console.log(action);
+      similarQuestionObj = stringSimilarity.findBestMatch(
+        humanInput,
+        lectureChat,
       ).bestMatch;
       console.log(similarQuestionObj);
     } else {
@@ -281,16 +291,12 @@ const sendAnswer = async (req, res) => {
       const valuesObj = extractValues(humanInput, similarQuestion, {
         delimiters: ["{", "}"],
       });
-      console.log("valuesObj ", valuesObj);
       let { course_name } = valuesObj;
-      console.log("course_name", course_name);
       course_name = `${course_name.toLowerCase()} exam`;
-      console.log("course_name2", course_name);
 
       const findEvent = newEvents.find((event) => event.summary.toLowerCase() == course_name);
 
       if (findEvent) {
-        console.log("Bruh.. I found it...!!!!!");
         const keys = Object.keys(valuesObj);
         const firstKey = keys[0];
         const firstValue = valuesObj[firstKey];
@@ -300,10 +306,40 @@ const sendAnswer = async (req, res) => {
           location: findEvent.location,
           summary: findEvent.summary,
           keyText: firstValue,
+          action:action,
         };
         responseText = responseObj;
       } else {
         responseText = "hmmm, I can't find any event in your calendar!";
+      }
+    } else if (action == "lecture") {
+      console.log(similarQuestion);
+      console.log(humanInput);
+      const valuesObj2 = extractValues(humanInput, similarQuestion, {
+        delimiters: ["{", "}"],
+      });
+      console.log("valuesObj2 ", valuesObj2);
+      let { lecture_name } = valuesObj2;
+      console.log("lecture_name", lecture_name);
+      lecture_name = `${lecture_name.toLowerCase()}`;
+      console.log("lecture_name2", lecture_name);
+      const findLecture = lectureChatanswer.find(lecture => lecture.lecture_name == lecture_name);
+      if (findLecture){
+        const keys = Object.keys(valuesObj2);
+        const firstKey = keys[0];
+        const firstValue = valuesObj2[firstKey];
+          const responseObj = {
+            time: moment(findLecture.time).format("h:mm a"),
+            days: findLecture.days,
+            keyText: firstValue,
+            action:action,
+            lecture_name:findLecture.lecture_name,
+            location:findLecture.location,
+            professor:findLecture.professor,
+          }
+          responseText = responseObj;
+        } else {
+        responseText = "hmmm, I can't find any lecture right know! Can you ask your question again?";
       }
     } else if (
       /(?:my name is|I'm|I am) (?!fine|good)(.{1,30})/gim.test(humanInput)
@@ -341,7 +377,7 @@ const sendAnswer = async (req, res) => {
     if (responseText == null) {
       responseText = _.sample(fallbackChat);
       isFallback = true;
-    } else if (action != "wikipedia" && action != "exam_date") {
+    } else if (action != "wikipedia" && action != "exam_date" && action != "lecture") {
       responseText = responseText
         .replace(/(\[BOT_NAME\])/g, botName)
         .replace(/(\[DEVELOPER_NAME\])/g, developerName)

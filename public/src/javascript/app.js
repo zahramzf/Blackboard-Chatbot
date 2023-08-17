@@ -111,24 +111,41 @@ const submitForm = () => {
       console.log("data front: ", data);
       if (typeof data.responseText === "object") {
         const response = data.responseText;
-        if (response.keyText == 'when') {
-           $(".chat-msg-box.bot:last-child").html(`
-            <div class="content-container chat-msg-box-inner"></br>
-              <p>Oww, I found it!🤩🤩 Your ${response.summary} gonna be on ${response.time}</p>
-              <small>If you want to see more details please see the google calendar link :<u style="color:blue;"> ${response.link}</u></small></br>
-              <span class="time2">${Timecurrent}</span>
-            </div>
-          `);
-        }else{
-          $(".chat-msg-box.bot:last-child").html(`
-            <div class="content-container chat-msg-box-inner"></br>
-              <p>Oww, I found it!🤩🤩 Your ${response.summary} gonna be held in ${response.location}</p>
-              <small>If you want to see more details please see the google calendar link :<u style="color:blue;"> ${response.link}</u></small></br>
-              <span class="time2">${Timecurrent}</span>
-            </div>
-          `);
+        if (response.action == "exam_date") {
+          if (response.keyText == "when") {
+            $(".chat-msg-box.bot:last-child").html(`
+                <div class="content-container chat-msg-box-inner"></br>
+                  <p>Oww, I found it!🤩🤩 Your ${response.summary} gonna be on ${response.time}</p>
+                  <small>If you want to see more details please see the google calendar link :<u style="color:blue;"> ${response.link}</u></small></br>
+                  <span class="time2">${Timecurrent}</span>
+                </div>
+              `);
+          } else {
+            $(".chat-msg-box.bot:last-child").html(`
+              <div class="content-container chat-msg-box-inner"></br>
+                <p>Oww, I found it!🤩🤩 Your ${response.summary} gonna be held in ${response.location}</p>
+                <small>If you want to see more details please see the google calendar link :<u style="color:blue;"> ${response.link}</u></small></br>
+                <span class="time2">${Timecurrent}</span>
+              </div>
+            `);
+          }
+        } else if (response.action == "lecture") {
+          if (response.keyText == "when") {
+            $(".chat-msg-box.bot:last-child").html(`
+                <div class="content-container chat-msg-box-inner"></br>
+                  <p>Perfect!! Your ${response.lecture_name} lecture held every ${response.days.toString()} at ${response.time}</p>
+                  <span class="time2">${Timecurrent}</span>
+                </div>
+              `);
+          } else if (response.keyText == "where") {
+            $(".chat-msg-box.bot:last-child").html(`
+                <div class="content-container chat-msg-box-inner"></br>
+                  <p>Your ${response.lecture_name} lecture held in ${response.location}</p>
+                  <span class="time2">${Timecurrent}</span>
+                </div>
+              `);
+          }
         }
-       
       } else {
         const response = (data.responseText).replace(/\n/gm, "</br>");
         $(".chat-msg-box.bot:last-child").html(`
