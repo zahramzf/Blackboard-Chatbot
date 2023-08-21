@@ -1,3 +1,5 @@
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable max-len */
 /* eslint-disable no-shadow */
 /* eslint-disable no-unused-vars */
 /* eslint-disable import/order */
@@ -12,6 +14,7 @@ const { capitalCase } = require("change-case");
 const extractValues = require("extract-values");
 const stringSimilarity = require("string-similarity");
 const { upperCaseFirst } = require("upper-case-first");
+const pdfParse = require("pdf-parse");
 
 const cors = require("cors");
 const path = require("path");
@@ -34,6 +37,7 @@ const unitConverterChat = require("./intents/unit_converter.json");
 const examChat = require("./intents/answers.json");
 const lectureChat = require("./intents/lectures.json");
 const lectureChatanswer = require("./intents/lecture_answers.json");
+const readPDFFile = require("./intents/readFromPDFFile.json");
 
 dotenv.config();
 const fss = require("fs").promises;
@@ -113,6 +117,57 @@ async function Events(auth) {
 authorization().then(Events).catch(console.error);
 // Google Calendar
 
+// Read PDF
+function extractProfessorNames(text) {
+  const regex = /Professor:\s+([^\n]+)/g;
+  const matches = text.match(regex);
+  if (matches) {
+    return matches.map((match) => match.replace("Professor: ", ""));
+  }
+  return [];
+}
+function extractCourseDescriptions(text) {
+  const regex = /Course Description:([\s\S]+?)(?=\nDeadlines:|$)/g;
+  const matches = text.matchAll(regex);
+  const courseDescriptions = [];
+  for (const match of matches) {
+    const courseDescription = match[1].trim();
+    courseDescriptions.push(courseDescription);
+  }
+
+  return courseDescriptions;
+}
+// function extractDeadlines(text) {
+//   const regex = /Deadlines:([\s\S]+?)(?=(?:\d+\.[^\n]*|$))/g;
+//   const matches = text.match(regex);
+
+//   const deadlines = [];
+
+//   for (const match of matches) {
+//     const deadlineEntry = match.trim();
+//     deadlines.push(deadlineEntry);
+//   }
+
+//   return deadlines;
+// }
+let des;
+const getPDF = async (file) => {
+  const readFileSync = fs.readFileSync(file);
+  try {
+    const pdfExtract = await pdfParse(readFileSync);
+    console.log("File content: ", pdfExtract.text);
+    // const professorNames = extractProfessorNames(pdfExtract.text);
+    const CourseDescriptions = extractCourseDescriptions(pdfExtract.text);
+    // const deadlines = extractDeadlines(pdfExtract.text);
+    // console.log(professorNames);
+    // console.log(CourseDescriptions);
+    // console.log(deadlines);
+    return CourseDescriptions;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+// Read PDF
 let allQustions = [];
 
 allQustions = _.concat(allQustions, wikipediaChat);
@@ -151,7 +206,7 @@ const sendAllQuestions = (req, res) => {
     allQustions.forEach((qus) => {
       if (qus.length >= 15) {
         if (
-          /^(can|are|may|how|what|when|who|do|where|your|from|is|will|why)/gi.test(
+          /^(can|are|may|how|when|who|do|where|your|from|is|will|why)/gi.test(
             qus,
           )
         ) {
@@ -186,12 +241,12 @@ const sendAnswer = async (req, res) => {
     const humanInput = lowerCase(query.replace(/(\?|\.|!)$/gim, ""));
 
     const regExforUnitConverter = /(convert|change|in).{1,2}(\d{1,8})/gim;
-    const regExforWikipedia = /(search for|tell me about|what is|who is)(?!.you) (.{1,30})/gim;
+    const regExforWikipedia = /(search for|tell me about|who is)(?!.you) (.{1,30})/gim;
     const regExforSupport = /(invented|programmer|teacher|create|maker|who made|creator|developer|bug|email|report|problems)/gim;
 
     const regExforExamTime = /(When is |Where is )(.*) exam/gim;
     const regExforlectureTime = /(When is |Where is )(.*) lecture/gim;
-    // const regExforExamDeadline = /^When is my (.*) deadline\b/gim;
+    const regExforCourseDetail = /What is(.*) about/gim;
 
     let similarQuestionObj;
 
@@ -226,6 +281,14 @@ const sendAnswer = async (req, res) => {
       similarQuestionObj = stringSimilarity.findBestMatch(
         humanInput,
         lectureChat,
+      ).bestMatch;
+      console.log(similarQuestionObj);
+    } else if (regExforCourseDetail.test(humanInput)) {
+      action = "read_PDF";
+      console.log(action);
+      similarQuestionObj = stringSimilarity.findBestMatch(
+        humanInput,
+        readPDFFile,
       ).bestMatch;
       console.log(similarQuestionObj);
     } else {
@@ -306,7 +369,7 @@ const sendAnswer = async (req, res) => {
           location: findEvent.location,
           summary: findEvent.summary,
           keyText: firstValue,
-          action:action,
+          action,
         };
         responseText = responseObj;
       } else {
@@ -323,23 +386,50 @@ const sendAnswer = async (req, res) => {
       console.log("lecture_name", lecture_name);
       lecture_name = `${lecture_name.toLowerCase()}`;
       console.log("lecture_name2", lecture_name);
-      const findLecture = lectureChatanswer.find(lecture => lecture.lecture_name == lecture_name);
-      if (findLecture){
+      const findLecture = lectureChatanswer.find((lecture) => lecture.lecture_name == lecture_name);
+      if (findLecture) {
         const keys = Object.keys(valuesObj2);
         const firstKey = keys[0];
         const firstValue = valuesObj2[firstKey];
-          const responseObj = {
-            time: moment(findLecture.time).format("h:mm a"),
-            days: findLecture.days,
-            keyText: firstValue,
-            action:action,
-            lecture_name:findLecture.lecture_name,
-            location:findLecture.location,
-            professor:findLecture.professor,
-          }
-          responseText = responseObj;
-        } else {
+        const responseObj = {
+          time: moment(findLecture.time).format("h:mm a"),
+          days: findLecture.days,
+          keyText: firstValue,
+          action,
+          lecture_name: findLecture.lecture_name,
+          location: findLecture.location,
+          professor: findLecture.professor,
+        };
+        responseText = responseObj;
+      } else {
         responseText = "hmmm, I can't find any lecture right know! Can you ask your question again?";
+      }
+    } else if (action == "read_PDF") {
+      try {
+        console.log(similarQuestion);
+        console.log(humanInput);
+        const valuesObj = extractValues(humanInput, similarQuestion, {
+          delimiters: ["{", "}"],
+        });
+        let { course_name } = valuesObj;
+        course_name = `${course_name.toLowerCase()}`;
+        let dool=[];
+        const file_name = "./documents/service design.pdf";
+        const description = getPDF(file_name);
+          description.then((data) => {
+            dool =  data;
+          });
+          console.log("dool",dool)
+          const responseObj = {
+              action,
+              description,
+            };
+            responseText = responseObj;
+          if(!description){
+            responseText = "Oops, I can't find any document about your question!";
+          }
+      } catch (error) {
+        console.log(error);
       }
     } else if (
       /(?:my name is|I'm|I am) (?!fine|good)(.{1,30})/gim.test(humanInput)
@@ -377,7 +467,7 @@ const sendAnswer = async (req, res) => {
     if (responseText == null) {
       responseText = _.sample(fallbackChat);
       isFallback = true;
-    } else if (action != "wikipedia" && action != "exam_date" && action != "lecture") {
+    } else if (action != "wikipedia" && action != "exam_date" && action != "lecture" && action != "read_PDF") {
       responseText = responseText
         .replace(/(\[BOT_NAME\])/g, botName)
         .replace(/(\[DEVELOPER_NAME\])/g, developerName)

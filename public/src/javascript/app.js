@@ -145,6 +145,23 @@ const submitForm = () => {
                 </div>
               `);
           }
+        } else if (response.action == "read_PDF") {
+          // let description="";
+          // response.description.forEach(line=>{
+
+          // })
+          try {
+            console.log(response.description);
+            $(".chat-msg-box.bot:last-child").html(`
+                <div class="content-container chat-msg-box-inner"></br>
+                  <p>${response.description.join("+")}</p>
+                  <small>If you want to see more details please download the file by pressing on the link :<u style="color:blue;"> Download</u></small></br>
+                  <span class="time2">${Timecurrent}</span>
+                </div>
+              `);
+          } catch (error) {
+            console.log(error);
+          }
         }
       } else {
         const response = (data.responseText).replace(/\n/gm, "</br>");

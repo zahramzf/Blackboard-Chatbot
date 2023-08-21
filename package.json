@@ -45,6 +45,8 @@
     "lower-case": "^2.0.2",
     "moment": "^2.29.4",
     "morgan": "^1.10.0",
+    "pdf-parse": "^1.1.1",
+    "pdfreader": "^3.0.2",
     "serve-static": "^1.15.0",
     "string-similarity": "^4.0.4",
     "upper-case-first": "^2.0.2",
