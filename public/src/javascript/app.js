@@ -133,14 +133,16 @@ const submitForm = () => {
           if (response.keyText == "when") {
             $(".chat-msg-box.bot:last-child").html(`
                 <div class="content-container chat-msg-box-inner"></br>
-                  <p>Perfect!! Your ${response.lecture_name} lecture held every ${response.days.toString()} at ${response.time}</p>
+                  <p>Perfect!! Your ${response.summary} lecture held at ${response.time}</p>
+                  <small>If you want to see more details please see the google calendar link :<u style="color:blue;"> ${response.link}</u></small
                   <span class="time2">${Timecurrent}</span>
                 </div>
               `);
           } else if (response.keyText == "where") {
             $(".chat-msg-box.bot:last-child").html(`
                 <div class="content-container chat-msg-box-inner"></br>
-                  <p>Your ${response.lecture_name} lecture held in ${response.location}</p>
+                  <p>Your ${response.summary} lecture held in ${response.location}</p>
+                  <small>If you want to see more details please see the google calendar link :<u style="color:blue;"> ${response.link}</u></small
                   <span class="time2">${Timecurrent}</span>
                 </div>
               `);

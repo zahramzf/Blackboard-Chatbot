@@ -373,7 +373,7 @@ const sendAnswer = async (req, res) => {
         };
         responseText = responseObj;
       } else {
-        responseText = "hmmm, I can't find any event in your calendar!";
+        responseText = "Sorry,I am unable to find the answer. you can email the support service by 1234@le.ac.uk";
       }
     } else if (action == "lecture") {
       console.log(similarQuestion);
@@ -381,17 +381,27 @@ const sendAnswer = async (req, res) => {
       const valuesObj2 = extractValues(humanInput, similarQuestion, {
         delimiters: ["{", "}"],
       });
-      console.log("valuesObj2 ", valuesObj2);
+      //lecture_name
       let { lecture_name } = valuesObj2;
+<<<<<<< Updated upstream
       console.log("lecture_name", lecture_name);
       lecture_name = `${lecture_name.toLowerCase()}`;
       console.log("lecture_name2", lecture_name);
       const findLecture = lectureChatanswer.find((lecture) => lecture.lecture_name == lecture_name);
       if (findLecture) {
+=======
+      lecture_name = `${lecture_name.toLowerCase()} lecture`;
+
+      const findEvent = newEvents.find((event) => event.summary.toLowerCase() == lecture_name);
+      console.log("findEvent : ",findEvent);
+      console.log(lecture_name);
+      if (findEvent) {
+>>>>>>> Stashed changes
         const keys = Object.keys(valuesObj2);
         const firstKey = keys[0];
         const firstValue = valuesObj2[firstKey];
         const responseObj = {
+<<<<<<< Updated upstream
           time: moment(findLecture.time).format("h:mm a"),
           days: findLecture.days,
           keyText: firstValue,
@@ -403,6 +413,18 @@ const sendAnswer = async (req, res) => {
         responseText = responseObj;
       } else {
         responseText = "hmmm, I can't find any lecture right know! Can you ask your question again?";
+=======
+          time: moment(findEvent.start.dateTime).format("dddd, MMMM Do YYYY, h:mm:ss a"),
+          link: findEvent.htmlLink,
+          location: findEvent.location,
+          summary: findEvent.summary,
+          keyText: firstValue,
+          action:action,
+        };
+        responseText = responseObj;
+      } else {
+        responseText = "hmmm, I can't find any lecture right know! You can email the support service by 1234@le.ac.uk";
+>>>>>>> Stashed changes
       }
     } else if (action == "read_PDF") {
       try {
