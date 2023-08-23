@@ -148,17 +148,13 @@ const submitForm = () => {
               `);
           }
         } else if (response.action == "read_PDF") {
-          // let description="";
-          // response.description.forEach(line=>{
-
-          // })
           try {
-            console.log(response.description);
             $(".chat-msg-box.bot:last-child").html(`
                 <div class="content-container chat-msg-box-inner"></br>
                   <p>${response.description.join("+")}</p>
-                  <small>If you want to see more details please download the file by pressing on the link :<u style="color:blue;"> Download</u></small></br>
+                  <small>If you want to see more details please download the file by pressing on the link : <a href="../../documents/${response.course}.pdf" class="download_btn" style="color:blue;" id="download.${response.course}" download: '../../documents/${response.course}.pdf'> Download</a></small></br>
                   <span class="time2">${Timecurrent}</span>
+                  
                 </div>
               `);
           } catch (error) {
@@ -183,6 +179,28 @@ const submitForm = () => {
     },
   });
 };
+
+function downloadFile(course) {
+  const postData = {
+    course
+  };
+  try {
+    $.ajax({
+      url: "./api/download",
+      type: "GET",
+      data: postData,
+      dataType: "json",
+      success(response) {
+        console.log("Response from server:", response);
+      },
+      error(xhr, status, error) {
+        console.error("Error:", error);
+      },
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 window.onload = () => {
   setTimeout(() => {

@@ -150,7 +150,6 @@ function extractCourseDescriptions(text) {
 
 //   return deadlines;
 // }
-let des;
 const getPDF = async (file) => {
   const readFileSync = fs.readFileSync(file);
   try {
@@ -382,38 +381,17 @@ const sendAnswer = async (req, res) => {
         delimiters: ["{", "}"],
       });
       //lecture_name
-      let { lecture_name } = valuesObj2;
-<<<<<<< Updated upstream
-      console.log("lecture_name", lecture_name);
-      lecture_name = `${lecture_name.toLowerCase()}`;
-      console.log("lecture_name2", lecture_name);
-      const findLecture = lectureChatanswer.find((lecture) => lecture.lecture_name == lecture_name);
-      if (findLecture) {
-=======
+      let { lecture_name } = valuesObj2;     
       lecture_name = `${lecture_name.toLowerCase()} lecture`;
 
       const findEvent = newEvents.find((event) => event.summary.toLowerCase() == lecture_name);
       console.log("findEvent : ",findEvent);
       console.log(lecture_name);
       if (findEvent) {
->>>>>>> Stashed changes
         const keys = Object.keys(valuesObj2);
         const firstKey = keys[0];
         const firstValue = valuesObj2[firstKey];
         const responseObj = {
-<<<<<<< Updated upstream
-          time: moment(findLecture.time).format("h:mm a"),
-          days: findLecture.days,
-          keyText: firstValue,
-          action,
-          lecture_name: findLecture.lecture_name,
-          location: findLecture.location,
-          professor: findLecture.professor,
-        };
-        responseText = responseObj;
-      } else {
-        responseText = "hmmm, I can't find any lecture right know! Can you ask your question again?";
-=======
           time: moment(findEvent.start.dateTime).format("dddd, MMMM Do YYYY, h:mm:ss a"),
           link: findEvent.htmlLink,
           location: findEvent.location,
@@ -424,7 +402,6 @@ const sendAnswer = async (req, res) => {
         responseText = responseObj;
       } else {
         responseText = "hmmm, I can't find any lecture right know! You can email the support service by 1234@le.ac.uk";
->>>>>>> Stashed changes
       }
     } else if (action == "read_PDF") {
       try {
@@ -435,19 +412,25 @@ const sendAnswer = async (req, res) => {
         });
         let { course_name } = valuesObj;
         course_name = `${course_name.toLowerCase()}`;
-        let dool=[];
-        const file_name = "./documents/service design.pdf";
-        const description = getPDF(file_name);
-          description.then((data) => {
-            dool =  data;
-          });
-          console.log("dool",dool)
+        const file_name = `./public/documents/${course_name.replace(/ /g, "_")}.pdf`;
+
+        const readFileSync = fs.readFileSync(file_name);
+        const pdfExtract = await pdfParse(readFileSync);
+        console.log("File content: ", pdfExtract.text);
+        // const professorNames = extractProfessorNames(pdfExtract.text);
+        const CourseDescriptions = extractCourseDescriptions(pdfExtract.text);
+        // const deadlines = extractDeadlines(pdfExtract.text);
+        // console.log(professorNames);
+        // console.log(CourseDescriptions);
+        // console.log(deadlines);
+        
           const responseObj = {
               action,
-              description,
+              description: CourseDescriptions,
+              course:course_name.replace(/ /g, "_")
             };
             responseText = responseObj;
-          if(!description){
+          if(!CourseDescriptions){
             responseText = "Oops, I can't find any document about your question!";
           }
       } catch (error) {
@@ -574,6 +557,23 @@ const addToJsonFile = async (req, res) => {
   //   }
   // });
 };
+const downloadPDFFile = async (req, res) => {
+  try {
+    const query = req.query;
+    
+    console.log(query.course);
+    const pdfFilePath = path.join(__dirname,'public', 'documents', `${query.course}.pdf`);;
+    console.log(pdfFilePath);
+    res.setHeader('Content-Disposition', 'attachment; filename="downloaded_file.pdf"');
+    res.setHeader('Content-Type', 'text/pdf');
+
+    const fileStream = fs.createReadStream(pdfFilePath);
+    fileStream.pipe(res);
+  } catch (error) {
+    console.log(error);
+  }
+  
+}
 
 app.use(cors());
 app.use(compression());
@@ -586,6 +586,7 @@ app.get("/api/question", sendAnswer);
 app.get("/api/welcome", sendWelcomeMessage);
 app.get("/api/allQuestions", sendAllQuestions);
 app.post("/api/feedBack", addToJsonFile);
+app.get("/api/download", downloadPDFFile);
 app.use(serveStatic(path.join(__dirname, "public")));
 app.get("*", notFound);
 
