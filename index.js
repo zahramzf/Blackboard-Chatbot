@@ -413,21 +413,21 @@ const sendAnswer = async (req, res) => {
         });
         let { course_name } = valuesObj;
         course_name = `${course_name.toLowerCase()}`;
-        let dool=[];
+
         const file_name = "./documents/service design.pdf";
         const description = getPDF(file_name);
-          description.then((data) => {
-            dool =  data;
-          });
-          console.log("dool",dool)
-          const responseObj = {
-              action,
-              description,
-            };
-            responseText = responseObj;
-          if(!description){
-            responseText = "Oops, I can't find any document about your question!";
-          }
+        description.then((data) => {
+          dool = data;
+        });
+        console.log("dool", dool);
+        const responseObj = {
+          action,
+          description,
+        };
+        responseText = responseObj;
+        if (!description) {
+          responseText = "Oops, I can't find any document about your question!";
+        }
       } catch (error) {
         console.log(error);
       }
