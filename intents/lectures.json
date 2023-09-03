@@ -2,6 +2,6 @@
     "{when} is {lecture_name} lecture",
     "{when} is the {lecture_name} lecture",
     "{when} is my {lecture_name} lecture",
-    "{where} is my {lecture_name} lecture",
+    "{where} is {lecture_name} lecture",
     "{where} is the {lecture_name} lecture"
 ]

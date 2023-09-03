@@ -524,4 +524,15 @@ main {
     cursor: pointer;
     /* Add your styles for the like and dislike buttons here */
   }
+
+  /* Download Button Style */
+  .download_btn{
+    border: none;
+    outline: none;
+    padding: .25rem .5rem;
+    color: #07319b;
+    background-color: transparent;
+    cursor: pointer;
+    z-index: 5;
+  }
   

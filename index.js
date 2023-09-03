@@ -150,7 +150,6 @@ function extractCourseDescriptions(text) {
 
 //   return deadlines;
 // }
-let des;
 const getPDF = async (file) => {
   const readFileSync = fs.readFileSync(file);
   try {
@@ -206,7 +205,7 @@ const sendAllQuestions = (req, res) => {
     allQustions.forEach((qus) => {
       if (qus.length >= 15) {
         if (
-          /^(can|are|may|how|when|who|do|where|your|from|is|will|why)/gi.test(
+          /^(can|are|may|how|when|do|where|your|from|is|will|why)/gi.test(
             qus,
           )
         ) {
@@ -241,12 +240,13 @@ const sendAnswer = async (req, res) => {
     const humanInput = lowerCase(query.replace(/(\?|\.|!)$/gim, ""));
 
     const regExforUnitConverter = /(convert|change|in).{1,2}(\d{1,8})/gim;
-    const regExforWikipedia = /(search for|tell me about|who is)(?!.you) (.{1,30})/gim;
-    const regExforSupport = /(invented|programmer|teacher|create|maker|who made|creator|developer|bug|email|report|problems)/gim;
+    const regExforWikipedia = /(search for|tell me about)(?!.you) (.{1,30})/gim;
+    const regExforSupport = /(invented|programmer|teacher|create|maker|creator|developer|bug|email|report|problems)/gim;
 
     const regExforExamTime = /(When is |Where is )(.*) exam/gim;
     const regExforlectureTime = /(When is |Where is )(.*) lecture/gim;
     const regExforCourseDetail = /What is(.*) about/gim;
+    const regExforCourseProfessor = /Who is teaching (.*) /gim;
 
     let similarQuestionObj;
 
@@ -284,6 +284,14 @@ const sendAnswer = async (req, res) => {
       ).bestMatch;
       console.log(similarQuestionObj);
     } else if (regExforCourseDetail.test(humanInput)) {
+      action = "read_PDF";
+      console.log(action);
+      similarQuestionObj = stringSimilarity.findBestMatch(
+        humanInput,
+        readPDFFile,
+      ).bestMatch;
+      console.log(similarQuestionObj);
+    } else if (regExforCourseProfessor.test(humanInput)) {
       action = "read_PDF";
       console.log(action);
       similarQuestionObj = stringSimilarity.findBestMatch(
@@ -373,7 +381,7 @@ const sendAnswer = async (req, res) => {
         };
         responseText = responseObj;
       } else {
-        responseText = "hmmm, I can't find any event in your calendar!";
+        responseText = "Sorry,I am unable to find the answer. you can email the support service by 1234@le.ac.uk";
       }
     } else if (action == "lecture") {
       console.log(similarQuestion);
@@ -381,28 +389,28 @@ const sendAnswer = async (req, res) => {
       const valuesObj2 = extractValues(humanInput, similarQuestion, {
         delimiters: ["{", "}"],
       });
-      console.log("valuesObj2 ", valuesObj2);
+      // lecture_name
       let { lecture_name } = valuesObj2;
-      console.log("lecture_name", lecture_name);
-      lecture_name = `${lecture_name.toLowerCase()}`;
-      console.log("lecture_name2", lecture_name);
-      const findLecture = lectureChatanswer.find((lecture) => lecture.lecture_name == lecture_name);
-      if (findLecture) {
+      lecture_name = `${lecture_name.toLowerCase()} lecture`;
+
+      const findEvent = newEvents.find((event) => event.summary.toLowerCase() == lecture_name);
+      console.log("findEvent : ", findEvent);
+      console.log(lecture_name);
+      if (findEvent) {
         const keys = Object.keys(valuesObj2);
         const firstKey = keys[0];
         const firstValue = valuesObj2[firstKey];
         const responseObj = {
-          time: moment(findLecture.time).format("h:mm a"),
-          days: findLecture.days,
+          time: moment(findEvent.start.dateTime).format("dddd, MMMM Do YYYY, h:mm:ss a"),
+          link: findEvent.htmlLink,
+          location: findEvent.location,
+          summary: findEvent.summary,
           keyText: firstValue,
           action,
-          lecture_name: findLecture.lecture_name,
-          location: findLecture.location,
-          professor: findLecture.professor,
         };
         responseText = responseObj;
       } else {
-        responseText = "hmmm, I can't find any lecture right know! Can you ask your question again?";
+        responseText = "hmmm, I can't find any lecture right know! You can email the support service by 1234@le.ac.uk";
       }
     } else if (action == "read_PDF") {
       try {
@@ -413,20 +421,43 @@ const sendAnswer = async (req, res) => {
         });
         let { course_name } = valuesObj;
         course_name = `${course_name.toLowerCase()}`;
-
-        const file_name = "./documents/service design.pdf";
-        const description = getPDF(file_name);
-        description.then((data) => {
-          dool = data;
-        });
-        console.log("dool", dool);
-        const responseObj = {
-          action,
-          description,
-        };
-        responseText = responseObj;
-        if (!description) {
-          responseText = "Oops, I can't find any document about your question!";
+        console.log(valuesObj);
+        const file_name = `./public/documents/${course_name.replace(/ /g, "_")}.pdf`;
+        const readFileSync = fs.readFileSync(file_name);
+        const pdfExtract = await pdfParse(readFileSync);
+        console.log("File content: ", pdfExtract.text);
+        const keys = Object.keys(valuesObj);
+        const firstKey = keys[0];
+        const firstValue = valuesObj[firstKey];
+        if (firstValue == "who") {
+          const professorNames = extractProfessorNames(pdfExtract.text);
+          const responseObjWho = {
+            action,
+            description: professorNames,
+            course: course_name.replace(/ /g, "_"),
+            keyText: firstValue,
+          };
+          responseText = responseObjWho;
+          if (!professorNames) {
+            if (!professorNames) {
+              responseText = "Oops, I can't find any document about your question!";
+            }
+          }
+        } else if (firstValue == "what") {
+          const CourseDescriptions = extractCourseDescriptions(pdfExtract.text);
+          // const deadlines = extractDeadlines(pdfExtract.text);
+          // console.log(CourseDescriptions);
+          // console.log(deadlines);
+          const responseObj = {
+            action,
+            description: CourseDescriptions,
+            course: course_name.replace(/ /g, "_"),
+            keyText: firstValue,
+          };
+          responseText = responseObj;
+          if (!CourseDescriptions) {
+            responseText = "Oops, I can't find any document about your question!";
+          }
         }
       } catch (error) {
         console.log(error);
@@ -552,6 +583,22 @@ const addToJsonFile = async (req, res) => {
   //   }
   // });
 };
+const downloadPDFFile = async (req, res) => {
+  try {
+    const { query } = req;
+
+    console.log(query.course);
+    const pdfFilePath = path.join(__dirname, "public", "documents", `${query.course}.pdf`);
+    console.log(pdfFilePath);
+    res.setHeader("Content-Disposition", "attachment; filename=\"downloaded_file.pdf\"");
+    res.setHeader("Content-Type", "text/pdf");
+
+    const fileStream = fs.createReadStream(pdfFilePath);
+    fileStream.pipe(res);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 app.use(cors());
 app.use(compression());
@@ -564,6 +611,7 @@ app.get("/api/question", sendAnswer);
 app.get("/api/welcome", sendWelcomeMessage);
 app.get("/api/allQuestions", sendAllQuestions);
 app.post("/api/feedBack", addToJsonFile);
+app.get("/api/download", downloadPDFFile);
 app.use(serveStatic(path.join(__dirname, "public")));
 app.get("*", notFound);
 
