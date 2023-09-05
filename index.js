@@ -137,19 +137,27 @@ function extractCourseDescriptions(text) {
 
   return courseDescriptions;
 }
-// function extractDeadlines(text) {
-//   const regex = /Deadlines:([\s\S]+?)(?=(?:\d+\.[^\n]*|$))/g;
-//   const matches = text.match(regex);
+function extractDeadlines(text) {
+  const regex = /Deadlines:(.*)/s;
+  const matches = text.match(regex);
 
-//   const deadlines = [];
-
-//   for (const match of matches) {
-//     const deadlineEntry = match.trim();
-//     deadlines.push(deadlineEntry);
-//   }
-
-//   return deadlines;
-// }
+  const deadlines = [];
+  if (matches) {
+    // Extracted text after "Deadlines:"
+    const extractedText = matches[1];
+  
+    // Print or process the extracted text
+    
+    // for (const match of extractedText) {
+    //   const deadlineEntry = match.trim();
+    //   deadlines.push(deadlineEntry);
+    // }
+    // console.log("deadlineEntry:",extractedText);
+    // return deadlines;
+    return extractedText;
+  }
+  
+}
 const getPDF = async (file) => {
   const readFileSync = fs.readFileSync(file);
   try {
@@ -247,6 +255,7 @@ const sendAnswer = async (req, res) => {
     const regExforlectureTime = /(When is |Where is )(.*) lecture/gim;
     const regExforCourseDetail = /What is(.*) about/gim;
     const regExforCourseProfessor = /Who is teaching (.*) /gim;
+    const regExforCourseDeadlines = /When is (.*) (deadlines|deadline)/gim;
 
     let similarQuestionObj;
 
@@ -292,6 +301,14 @@ const sendAnswer = async (req, res) => {
       ).bestMatch;
       console.log(similarQuestionObj);
     } else if (regExforCourseProfessor.test(humanInput)) {
+      action = "read_PDF";
+      console.log(action);
+      similarQuestionObj = stringSimilarity.findBestMatch(
+        humanInput,
+        readPDFFile,
+      ).bestMatch;
+      console.log(similarQuestionObj);
+    } else if (regExforCourseDeadlines.test(humanInput)) {
       action = "read_PDF";
       console.log(action);
       similarQuestionObj = stringSimilarity.findBestMatch(
@@ -447,10 +464,22 @@ const sendAnswer = async (req, res) => {
           const CourseDescriptions = extractCourseDescriptions(pdfExtract.text);
           // const deadlines = extractDeadlines(pdfExtract.text);
           // console.log(CourseDescriptions);
-          // console.log(deadlines);
+          // console.log("extractDeadlines : ",deadlines);
           const responseObj = {
             action,
             description: CourseDescriptions,
+            course: course_name.replace(/ /g, "_"),
+            keyText: firstValue,
+          };
+          responseText = responseObj;
+          if (!CourseDescriptions) {
+            responseText = "Oops, I can't find any document about your question!";
+          }
+        } else if (firstValue == "when"){
+          const deadlines = extractDeadlines(pdfExtract.text);
+          const responseObj = {
+            action,
+            description: deadlines,
             course: course_name.replace(/ /g, "_"),
             keyText: firstValue,
           };

@@ -149,7 +149,7 @@ const submitForm = () => {
           }
         } else if (response.action == "read_PDF") {
           try {
-            if (response.keyText == "who"){
+            if (response.keyText == "who") {
               $(".chat-msg-box.bot:last-child").html(`
                 <div class="content-container chat-msg-box-inner"></br>
                   <p style="margin-bottom : .5rem;">${response.description} who's teaching this course!</p>
@@ -157,7 +157,7 @@ const submitForm = () => {
                   <span class="time2">${Timecurrent}</span>
                 </div>
               `);
-            } else if (response.keyText == "what"){
+            } else if (response.keyText == "what") {
               $(".chat-msg-box.bot:last-child").html(`
                 <div class="content-container chat-msg-box-inner"></br>
                   <p>${response.description.join("+")}</p>
@@ -165,8 +165,15 @@ const submitForm = () => {
                   <span class="time2">${Timecurrent}</span>
                 </div>
               `);
+            } else if (response.keyText == "when") {
+              $(".chat-msg-box.bot:last-child").html(`
+                <div class="content-container chat-msg-box-inner"></br>
+                  <p>${response.description.trim("\n")}</p>
+                  <small>If you want to see more details please download the file by pressing on the link : <a href="../../documents/${response.course}.pdf" class="download_btn" style="color:blue;" id="download.${response.course}" download: '../../documents/${response.course}.pdf'> Download</a></small></br>
+                  <span class="time2">${Timecurrent}</span>
+                </div>
+              `);
             }
-            
           } catch (error) {
             console.log(error);
           }

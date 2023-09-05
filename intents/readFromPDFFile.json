@@ -3,5 +3,7 @@
     "{what} is my {course_name} course about",
     "{what} is {course_name} course about",
     "{who} is teaching {course_name} course",
-    "{who} is teaching the {course_name} course"
+    "{who} is teaching the {course_name} course",
+    "{when} is the {course_name} deadline",
+    "{when} is {course_name} deadline"
 ]
