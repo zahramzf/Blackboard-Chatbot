@@ -431,8 +431,7 @@ const sendAnswer = async (req, res) => {
       }
     } else if (action == "read_PDF") {
       try {
-        console.log(similarQuestion);
-        console.log(humanInput);
+        
         const valuesObj = extractValues(humanInput, similarQuestion, {
           delimiters: ["{", "}"],
         });
@@ -464,7 +463,7 @@ const sendAnswer = async (req, res) => {
           const CourseDescriptions = extractCourseDescriptions(pdfExtract.text);
           // const deadlines = extractDeadlines(pdfExtract.text);
           // console.log(CourseDescriptions);
-          // console.log("extractDeadlines : ",deadlines);
+          // console.log(deadlines);
           const responseObj = {
             action,
             description: CourseDescriptions,
@@ -581,37 +580,8 @@ const addToJsonFile = async (req, res) => {
       responseText: "Feedback submitted successfully",
     });
   });
-
-  // fs.readFile('data.json', 'utf8', (err, data) => {
-  //   if (err) {
-  //     console.error('Error reading data from the JSON file:', err);
-  //     return;
-  //   }
-
-  //   try {
-  //     // Step 2: Parse the JSON data into a JavaScript object
-  //     const jsonData = JSON.parse(data);
-
-  //     // Step 3: Modify the JavaScript object by adding the new data
-  //     jsonData.users.push(newData);
-
-  //     // Step 4: Write the updated JavaScript object back to the JSON file
-  //     fs.writeFile('data.json', JSON.stringify(jsonData, null, 2), 'utf8', (err) => {
-  //       if (err) {
-  //         console.error('Error writing data to the JSON file:', err);
-  //         return;
-  //       }
-
-  //       console.log('Data added successfully!');
-  //     });
-  //   } catch (err) {
-  //     console.error('Error parsing JSON data:', err);
-
-  //   }
-  //   }
-  //   }
-  // });
 };
+
 const downloadPDFFile = async (req, res) => {
   try {
     const { query } = req;

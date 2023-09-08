@@ -115,16 +115,16 @@ const submitForm = () => {
           if (response.keyText == "when") {
             $(".chat-msg-box.bot:last-child").html(`
                 <div class="content-container chat-msg-box-inner"></br>
-                  <p>Oww, I found it!🤩🤩 Your ${response.summary} gonna be on ${response.time}</p>
-                  <small>If you want to see more details please see the google calendar link :<u style="color:blue;"> ${response.link}</u></small></br>
+                  <p>Perfect, I found it!🤩 Your ${response.summary} is going to be on ${response.time}</p>
+                  <small>You can see more details in this google calendar link:<u style="color:rgb(64 101 210);"> ${response.link}</u></small></br>
                   <span class="time2">${Timecurrent}</span>
                 </div>
               `);
-          } else {
+          } else if (response.keyText == "where"){
             $(".chat-msg-box.bot:last-child").html(`
               <div class="content-container chat-msg-box-inner"></br>
-                <p>Oww, I found it!🤩🤩 Your ${response.summary} gonna be held in ${response.location}</p>
-                <small>If you want to see more details please see the google calendar link :<u style="color:blue;"> ${response.link}</u></small></br>
+                <p>Perfect, I found it!🤩 Your ${response.summary} is going to be held in ${response.location}</p><br>
+                <small>You can see more details in this google calendar link:<u style="color:rgb(64 101 210);"> ${response.link}</u></small></br>
                 <span class="time2">${Timecurrent}</span>
               </div>
             `);
@@ -134,7 +134,7 @@ const submitForm = () => {
             $(".chat-msg-box.bot:last-child").html(`
                 <div class="content-container chat-msg-box-inner"></br>
                   <p>Perfect!! Your ${response.summary} lecture held at ${response.time}</p>
-                  <small>If you want to see more details please see the google calendar link :<u style="color:blue;"> ${response.link}</u></small
+                  <small>If you want to see more details please see the google calendar link :<u style="color:rgb(64 101 210);"> ${response.link}</u></small
                   <span class="time2">${Timecurrent}</span>
                 </div>
               `);
@@ -160,8 +160,8 @@ const submitForm = () => {
             } else if (response.keyText == "what") {
               $(".chat-msg-box.bot:last-child").html(`
                 <div class="content-container chat-msg-box-inner"></br>
-                  <p>${response.description.join("+")}</p>
-                  <small>If you want to see more details please download the file by pressing on the link : <a href="../../documents/${response.course}.pdf" class="download_btn" style="color:blue;" id="download.${response.course}" download: '../../documents/${response.course}.pdf'> Download</a></small></br>
+                  <p>${response.description.join("+")}</p></br>
+                  <small>If you want to see more details please download the file by pressing on the link: <a href="../../documents/${response.course}.pdf" class="download_btn" style="color:rgb(64 101 210);" id="download.${response.course}" download: '../../documents/${response.course}.pdf'> Download The Document</a></small></br>
                   <span class="time2">${Timecurrent}</span>
                 </div>
               `);

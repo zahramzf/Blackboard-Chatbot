@@ -534,5 +534,6 @@ main {
     background-color: transparent;
     cursor: pointer;
     z-index: 5;
+    margin-left: -7px;
   }
   
