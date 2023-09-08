@@ -119,6 +119,12 @@ const submitForm = () => {
                   <small>You can see more details in this google calendar link:<u style="color:rgb(64 101 210);"> ${response.link}</u></small></br>
                   <span class="time2">${Timecurrent}</span>
                 </div>
+                <div style='margin-top:7px';>
+                  <div class="feedback">
+                    <img src="./src/images/like.png" class="feedback-like" style="width: 19px;height: 18px; margin-right:5px; margin-bottom:2px">
+                    <img src="./src/images/dislike.png" class="feedback-dislike" style="width: 19px;height: 18px">
+                  </div>  
+                </div>
               `);
           } else if (response.keyText == "where"){
             $(".chat-msg-box.bot:last-child").html(`
@@ -127,23 +133,41 @@ const submitForm = () => {
                 <small>You can see more details in this google calendar link:<u style="color:rgb(64 101 210);"> ${response.link}</u></small></br>
                 <span class="time2">${Timecurrent}</span>
               </div>
+              <div style='margin-top:7px';>
+                  <div class="feedback">
+                    <img src="./src/images/like.png" class="feedback-like" style="width: 19px;height: 18px; margin-right:5px; margin-bottom:2px">
+                    <img src="./src/images/dislike.png" class="feedback-dislike" style="width: 19px;height: 18px">
+                  </div>  
+                </div>
             `);
           }
         } else if (response.action == "lecture") {
           if (response.keyText == "when") {
             $(".chat-msg-box.bot:last-child").html(`
                 <div class="content-container chat-msg-box-inner"></br>
-                  <p>Perfect!! Your ${response.summary} lecture held at ${response.time}</p>
+                  <p>Perfect!! Your ${response.summary} held at ${response.time}</p>
                   <small>If you want to see more details please see the google calendar link :<u style="color:rgb(64 101 210);"> ${response.link}</u></small
                   <span class="time2">${Timecurrent}</span>
+                </div>
+                <div style='margin-top:7px';>
+                  <div class="feedback">
+                    <img src="./src/images/like.png" class="feedback-like" style="width: 19px;height: 18px; margin-right:5px; margin-bottom:2px">
+                    <img src="./src/images/dislike.png" class="feedback-dislike" style="width: 19px;height: 18px">
+                  </div>  
                 </div>
               `);
           } else if (response.keyText == "where") {
             $(".chat-msg-box.bot:last-child").html(`
                 <div class="content-container chat-msg-box-inner"></br>
-                  <p>Your ${response.summary} lecture held in ${response.location}</p>
+                  <p>Your ${response.summary} held in ${response.location}</p>
                   <small>If you want to see more details please see the google calendar link :<u style="color:blue;"> ${response.link}</u></small
                   <span class="time2">${Timecurrent}</span>
+                </div>
+                <div style='margin-top:7px';>
+                  <div class="feedback">
+                    <img src="./src/images/like.png" class="feedback-like" style="width: 19px;height: 18px; margin-right:5px; margin-bottom:2px">
+                    <img src="./src/images/dislike.png" class="feedback-dislike" style="width: 19px;height: 18px">
+                  </div>  
                 </div>
               `);
           }
@@ -156,6 +180,12 @@ const submitForm = () => {
                   <small>If you want to see more details please download the file by pressing on the link : <a href="../../documents/${response.course}.pdf" class="download_btn" style="color:blue;" id="download.${response.course}" download: '../../documents/${response.course}.pdf'> Download</a></small></br>
                   <span class="time2">${Timecurrent}</span>
                 </div>
+                <div style='margin-top:7px';>
+                  <div class="feedback">
+                    <img src="./src/images/like.png" class="feedback-like" style="width: 19px;height: 18px; margin-right:5px; margin-bottom:2px">
+                    <img src="./src/images/dislike.png" class="feedback-dislike" style="width: 19px;height: 18px">
+                  </div>  
+                </div>
               `);
             } else if (response.keyText == "what") {
               $(".chat-msg-box.bot:last-child").html(`
@@ -164,6 +194,12 @@ const submitForm = () => {
                   <small>If you want to see more details please download the file by pressing on the link: <a href="../../documents/${response.course}.pdf" class="download_btn" style="color:rgb(64 101 210);" id="download.${response.course}" download: '../../documents/${response.course}.pdf'> Download The Document</a></small></br>
                   <span class="time2">${Timecurrent}</span>
                 </div>
+                <div style='margin-top:7px';>
+                  <div class="feedback">
+                    <img src="./src/images/like.png" class="feedback-like" style="width: 19px;height: 18px; margin-right:5px; margin-bottom:2px">
+                    <img src="./src/images/dislike.png" class="feedback-dislike" style="width: 19px;height: 18px">
+                  </div>  
+                </div>
               `);
             } else if (response.keyText == "when") {
               $(".chat-msg-box.bot:last-child").html(`
@@ -171,6 +207,12 @@ const submitForm = () => {
                   <p>${response.description.trim("\n")}</p>
                   <small>If you want to see more details please download the file by pressing on the link : <a href="../../documents/${response.course}.pdf" class="download_btn" style="color:blue;" id="download.${response.course}" download: '../../documents/${response.course}.pdf'> Download</a></small></br>
                   <span class="time2">${Timecurrent}</span>
+                </div>
+                <div style='margin-top:7px';>
+                  <div class="feedback">
+                    <img src="./src/images/like.png" class="feedback-like" style="width: 19px;height: 18px; margin-right:5px; margin-bottom:2px">
+                    <img src="./src/images/dislike.png" class="feedback-dislike" style="width: 19px;height: 18px">
+                  </div>  
                 </div>
               `);
             }
@@ -187,6 +229,7 @@ const submitForm = () => {
         </div>
         `);
       }
+      setupFeedbackEventListeners();
     },
     error: () => {
       $(".chat-msg-box.bot:last-child").remove();

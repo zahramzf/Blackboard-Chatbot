@@ -36,7 +36,7 @@ const fallbackChat = require("./intents/Default_Fallback.json");
 const unitConverterChat = require("./intents/unit_converter.json");
 const examChat = require("./intents/answers.json");
 const lectureChat = require("./intents/lectures.json");
-const lectureChatanswer = require("./intents/lecture_answers.json");
+// const lectureChatanswer = require("./intents/lecture_answers.json");
 const readPDFFile = require("./intents/readFromPDFFile.json");
 
 dotenv.config();
