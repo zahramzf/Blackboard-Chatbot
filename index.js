@@ -29,14 +29,10 @@ const bodyParser = require("body-parser");
 const moment = require("moment");
 const pkg = require("./package.json");
 const mainChat = require("./intents/Main_Chat.json");
-const supportChat = require("./intents/support.json");
-const wikipediaChat = require("./intents/wikipedia.json");
 const welcomeChat = require("./intents/Default_Welcome.json");
 const fallbackChat = require("./intents/Default_Fallback.json");
-const unitConverterChat = require("./intents/unit_converter.json");
 const examChat = require("./intents/answers.json");
 const lectureChat = require("./intents/lectures.json");
-// const lectureChatanswer = require("./intents/lecture_answers.json");
 const readPDFFile = require("./intents/readFromPDFFile.json");
 
 dotenv.config();
@@ -143,17 +139,7 @@ function extractDeadlines(text) {
 
   const deadlines = [];
   if (matches) {
-    // Extracted text after "Deadlines:"
     const extractedText = matches[1];
-  
-    // Print or process the extracted text
-    
-    // for (const match of extractedText) {
-    //   const deadlineEntry = match.trim();
-    //   deadlines.push(deadlineEntry);
-    // }
-    // console.log("deadlineEntry:",extractedText);
-    // return deadlines;
     return extractedText;
   }
   
@@ -163,12 +149,7 @@ const getPDF = async (file) => {
   try {
     const pdfExtract = await pdfParse(readFileSync);
     console.log("File content: ", pdfExtract.text);
-    // const professorNames = extractProfessorNames(pdfExtract.text);
     const CourseDescriptions = extractCourseDescriptions(pdfExtract.text);
-    // const deadlines = extractDeadlines(pdfExtract.text);
-    // console.log(professorNames);
-    // console.log(CourseDescriptions);
-    // console.log(deadlines);
     return CourseDescriptions;
   } catch (error) {
     throw new Error(error);
@@ -177,12 +158,6 @@ const getPDF = async (file) => {
 // Read PDF
 let allQustions = [];
 
-allQustions = _.concat(allQustions, wikipediaChat);
-allQustions = _.concat(allQustions, unitConverterChat);
-allQustions = _.concat(
-  allQustions,
-  _.flattenDeep(_.map(supportChat, "questions")),
-);
 allQustions = _.concat(
   allQustions,
   _.flattenDeep(_.map(mainChat, "questions")),
@@ -190,21 +165,6 @@ allQustions = _.concat(
 
 allQustions = _.uniq(allQustions);
 allQustions = _.compact(allQustions);
-
-const changeUnit = (amount, unitFrom, unitTo) => {
-  try {
-    const convertValue = convert(amount).from(unitFrom).to(unitTo);
-    const returnMsg = `${amount} ${convert().describe(unitFrom).plural}(${
-      convert().describe(unitFrom).abbr
-    }) is equle to ${convertValue} ${convert().describe(unitTo).plural}(${
-      convert().describe(unitTo).abbr
-    }).`;
-
-    return returnMsg;
-  } catch (error) {
-    return error.message;
-  }
-};
 
 const sendAllQuestions = (req, res) => {
   const humanQuestions = [];
@@ -247,10 +207,6 @@ const sendAnswer = async (req, res) => {
     const query = decodeURIComponent(req.query.q).replace(/\s+/g, " ").trim() || "Hello";
     const humanInput = lowerCase(query.replace(/(\?|\.|!)$/gim, ""));
 
-    const regExforUnitConverter = /(convert|change|in).{1,2}(\d{1,8})/gim;
-    const regExforWikipedia = /(search for|tell me about)(?!.you) (.{1,30})/gim;
-    const regExforSupport = /(invented|programmer|teacher|create|maker|creator|developer|bug|email|report|problems)/gim;
-
     const regExforExamTime = /(When is |Where is )(.*) exam/gim;
     const regExforlectureTime = /(When is |Where is )(.*) lecture/gim;
     const regExforCourseDetail = /What is(.*) about/gim;
@@ -259,25 +215,7 @@ const sendAnswer = async (req, res) => {
 
     let similarQuestionObj;
 
-    if (regExforUnitConverter.test(humanInput)) {
-      action = "unit_converter";
-      similarQuestionObj = stringSimilarity.findBestMatch(
-        humanInput,
-        unitConverterChat,
-      ).bestMatch;
-    } else if (regExforWikipedia.test(humanInput)) {
-      action = "wikipedia";
-      similarQuestionObj = stringSimilarity.findBestMatch(
-        humanInput,
-        wikipediaChat,
-      ).bestMatch;
-    } else if (regExforSupport.test(humanInput)) {
-      action = "support";
-      similarQuestionObj = stringSimilarity.findBestMatch(
-        humanInput,
-        _.flattenDeep(_.map(supportChat, "questions")),
-      ).bestMatch;
-    } else if (regExforExamTime.test(humanInput)) {
+    if (regExforExamTime.test(humanInput)) {
       action = "exam_date";
       similarQuestionObj = stringSimilarity.findBestMatch(
         humanInput,
@@ -327,55 +265,7 @@ const sendAnswer = async (req, res) => {
     const similarQuestionRating = similarQuestionObj.rating;
     const similarQuestion = similarQuestionObj.target;
 
-    if (action == "unit_converter") {
-      const valuesObj = extractValues(humanInput, similarQuestion, {
-        delimiters: ["{", "}"],
-      });
-
-      rating = 1;
-      try {
-        const { amount, unitFrom, unitTo } = valuesObj;
-
-        responseText = changeUnit(amount, unitFrom, unitTo);
-      } catch (error) {
-        responseText = "One or more units are missing.";
-        console.log(error);
-      }
-    } else if (action == "wikipedia") {
-      const valuesObj = extractValues(humanInput, similarQuestion, {
-        delimiters: ["{", "}"],
-      });
-
-      let { topic } = valuesObj;
-      topic = capitalCase(topic);
-
-      try {
-        const wikipediaResponse = await wiki.summary(topic);
-        const wikipediaResponseText = wikipediaResponse.extract;
-
-        if (wikipediaResponseText == undefined || wikipediaResponseText == "") {
-          responseText = `Sorry, I can't find any article related to "${topic}".`;
-          isFallback = true;
-        } else {
-          responseText = wikipediaResponseText;
-        }
-      } catch (error) {
-        responseText = `Sorry, we can't find any article related to "${topic}".`;
-        console.log(error);
-      }
-    } else if (action == "support") {
-      rating = similarQuestionRating;
-
-      if (similarQuestionRating > standardRating) {
-        for (let i = 0; i < supportChat.length; i++) {
-          for (let j = 0; j < supportChat[i].questions.length; j++) {
-            if (similarQuestion == supportChat[i].questions[j]) {
-              responseText = _.sample(supportChat[i].answers);
-            }
-          }
-        }
-      }
-    } else if (action == "exam_date") {
+    if (action == "exam_date") {
       const valuesObj = extractValues(humanInput, similarQuestion, {
         delimiters: ["{", "}"],
       });
@@ -431,7 +321,6 @@ const sendAnswer = async (req, res) => {
       }
     } else if (action == "read_PDF") {
       try {
-        
         const valuesObj = extractValues(humanInput, similarQuestion, {
           delimiters: ["{", "}"],
         });
@@ -461,9 +350,6 @@ const sendAnswer = async (req, res) => {
           }
         } else if (firstValue == "what") {
           const CourseDescriptions = extractCourseDescriptions(pdfExtract.text);
-          // const deadlines = extractDeadlines(pdfExtract.text);
-          // console.log(CourseDescriptions);
-          // console.log(deadlines);
           const responseObj = {
             action,
             description: CourseDescriptions,
@@ -474,7 +360,7 @@ const sendAnswer = async (req, res) => {
           if (!CourseDescriptions) {
             responseText = "Oops, I can't find any document about your question!";
           }
-        } else if (firstValue == "when"){
+        } else if (firstValue == "when") {
           const deadlines = extractDeadlines(pdfExtract.text);
           const responseObj = {
             action,
@@ -490,12 +376,6 @@ const sendAnswer = async (req, res) => {
       } catch (error) {
         console.log(error);
       }
-    } else if (
-      /(?:my name is|I'm|I am) (?!fine|good)(.{1,30})/gim.test(humanInput)
-    ) {
-      const humanName = /(?:my name is|I'm|I am) (.{1,30})/gim.exec(humanInput);
-      responseText = `Nice to meet you ${humanName[1]}.`;
-      rating = 1;
     } else {
       action = "main_chat";
 

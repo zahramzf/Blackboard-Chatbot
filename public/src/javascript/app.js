@@ -108,7 +108,6 @@ const submitForm = () => {
       }
     },
     success: (data) => {
-      console.log("data front: ", data);
       if (typeof data.responseText === "object") {
         const response = data.responseText;
         if (response.action == "exam_date") {
